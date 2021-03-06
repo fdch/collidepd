@@ -114,7 +114,7 @@ function broadcast(socket,head,...data) {
   	
   }
   if (verbose)  {
-  	console.log(head+": "+data);
+  	console.log("%s: %j",head,data);
   }
 }
 function updateDict(socket,userData,prop,header,values,f) {
