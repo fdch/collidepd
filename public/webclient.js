@@ -1,4 +1,4 @@
-var canvas, socket;
+var canvas, socket, connected=0;
 var x, y, print=1;
 var deviceIsAndroid, deviceShouldSelfCalibrate = 0;
 
@@ -179,6 +179,15 @@ function startController() {
 function startSocket() {
   // establishes a socket.io connection
   socket = io({transports: ['websocket']});
+  var checkSocket = setInterval(function() {
+    if (socket.connected) {
+      connected = 1;
+    } 
+    else if (socket.disconnected) {
+      connected = 0;
+    } else {
+      connected = -1;
+    }}, 1000);
 }
 
 
@@ -198,8 +207,10 @@ function draw() {
     x = map(mouseX, 0, height, 1, 0);
     y = map(mouseY, 0, height, 1, 0);
   }
-  
-  socket.emit('event', {header:'/pos',values:[x,y]});
+
+  if (connected==1) {
+    socket.emit('event', {header:'/pos',values:[x,y]});
+  }
 
 }
 
