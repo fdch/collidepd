@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express();
-const path = require('path');
 const http = require('http');
 const server = http.Server(app);
 const io = require('socket.io')(server);
@@ -15,12 +14,9 @@ var verbose = 0, store = 0, mode = 1, url = '', userData=[];
  * 
  */
 
-// Routing to the public dir
-app.use(express.static(path.join(__dirname, 'public')));
-
 // serve the homepage
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile('index.html');
 });
 
 function getKeys(obj) {
