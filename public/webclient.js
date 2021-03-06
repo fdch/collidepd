@@ -1,4 +1,6 @@
 var socket;
+var x, y, print=1;
+var deviceIsAndroid, deviceShouldSelfCalibrate = 0;
 
 var accelRange = {
   rawX: 0.0, // raw value as reported by device motion
@@ -13,16 +15,13 @@ var accelRange = {
   tempY: 0.0,
   shouldReset: true // if (ToneMotion.deviceShouldSelfCalibrate), must reset thresholds once first
 }
+
+
 // self-calibrating device will call this often at first, then only with extreme motion
 function updateAccelRange() {
   accelRange.scaleX = accelRange.hiX - accelRange.loX; // find full range of raw values
   accelRange.scaleY = accelRange.hiY - accelRange.loY;
 }
-
-
-var x, y, print=1;
-
-var deviceIsAndroid, deviceShouldSelfCalibrate = 0;
 
 const userAgent = window.navigator.userAgent;
 
@@ -32,7 +31,6 @@ if (userAgent.match(/Android/i)) {
 else {
   deviceIsAndroid = false;
 }
-
 
 function handleMotionEvent(event) {
   // get the raw accelerometer values (invert if Android)
@@ -105,9 +103,13 @@ var motionFailCount = (motionCheckDur*1000)/motionCheckInterval;
 var motionCheckSensitivity = 0.01 // motion beyond this threshold shows device is moving
 var loThreshold = 0.5 - motionCheckSensitivity; // 0.5 is perfectly level
 var hiThreshold = 0.5 + motionCheckSensitivity;
+
+
 function beginMotionDetection() {
   motionCheckIntervId = setInterval(testForMotion, motionCheckInterval);
 }
+
+
 // closure keeps counter of failed attempts at polling device motion
 var testForMotion = (function() {
   var counter = 1; // counter incremented *after* test
@@ -136,9 +138,11 @@ var testForMotion = (function() {
     }
   };
 }());
+
+
 function startController() {
 
-  socket.emit('/chat', {header:"hello", values:"world"});
+  socket.emit('chat', {header:"hello", values:"world"});
   // testing iOS 13 motion permission
   // Guard against reference erros by checking that DeviceMotionEvent is defined
   if (typeof DeviceMotionEvent !== 'undefined' &&
@@ -153,18 +157,12 @@ function startController() {
         // user has not give permission for motion. Pretend device is laptop
         status = "deviceDoesNotReportMotion";
       }
-      
 
-      // NOW we can get position
-      
-      //...
-
+      //...now
       d = document.getElementById("data");
       d.innerHTML("position:\nx: "+x+"\ny: "+y);
 
       socket.emit('event', {header:'/pos',values:[x,y]});
-
-
 
     })
     .catch(console.error);
@@ -182,7 +180,11 @@ function startController() {
     }
   }
 }
+
+
 function startSocket() {
   // establishes a socket.io connection
   socket = io({transports: ['websocket']});
 }
+
+
