@@ -129,3 +129,43 @@ button:active {
   position: relative;
   top: 0px;
 }
+
+
+.container{
+  margin-top: 20px;
+}
+
+.tab-pane{
+  margin-top: 15px;
+}
+
+.page-header{
+  margin-top: 20px;
+}
+
+.input-group{
+  margin-bottom: 20px;
+
+}
+
+input[type=text],
+textarea{
+  box-shadow: none;
+  -webkit-appearance:none;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+#dm .input-group{
+  float: left;
+  padding-left: 10px;
+}
+
+#dm .input-group.first{
+  padding-left: 0px;
+}
+
+#dm .col-xs-12{
+  padding-left: 0;
+}
