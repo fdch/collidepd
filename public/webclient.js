@@ -139,6 +139,7 @@ var testForMotion = (function() {
 }());
 function startController() {
 
+  socket.emit('/chat', )
   // testing iOS 13 motion permission
   // Guard against reference erros by checking that DeviceMotionEvent is defined
   if (typeof DeviceMotionEvent !== 'undefined' &&
@@ -162,7 +163,7 @@ function startController() {
       d = document.getElementById("data");
       d.innerHTML("position:\nx: "+x+"\ny: "+y);
 
-      socket.emit('/event', {header:'pos',values:[x,y]});
+      socket.emit('event', {header:'/pos',values:[x,y]});
 
 
 
