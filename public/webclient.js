@@ -1,3 +1,5 @@
+var socket;
+
 var accelRange = {
   rawX: 0.0, // raw value as reported by device motion
   loX: -10.0, // both axes will probably have same ranges, but you never know ..
@@ -182,6 +184,5 @@ function startController() {
 }
 function startSocket() {
   // establishes a socket.io connection
-  var socket = io({transports: ['websocket']});
-
+  socket = io({transports: ['websocket']});
 }
