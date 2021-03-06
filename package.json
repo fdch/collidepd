@@ -4,8 +4,8 @@
   "description": "a websocket server for live performance",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "heroku-postbuild": "npm install && npm run build"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,11 @@
   "bugs": {
     "url": "https://github.com/fdch/socketosc-server/issues"
   },
-  "homepage": "https://github.com/fdch/socketosc-server#readme"
+  "homepage": "https://github.com/fdch/socketosc-server#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "http": "^0.0.1-security",
+    "path": "^0.12.7",
+    "socket.io": "^3.1.2"
+  }
 }
