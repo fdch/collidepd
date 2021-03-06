@@ -1,0 +1,27 @@
+{
+  "name": "socketosc-server",
+  "version": "1.0.0",
+  "description": "a websocket server for live performance",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fdch/socketosc-server.git"
+  },
+  "keywords": [
+    "websocket",
+    "socket.io",
+    "networked",
+    "performance",
+    "music"
+  ],
+  "author": "fdch",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fdch/socketosc-server/issues"
+  },
+  "homepage": "https://github.com/fdch/socketosc-server#readme"
+}
