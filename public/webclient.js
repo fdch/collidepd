@@ -158,12 +158,6 @@ function startController() {
         status = "deviceDoesNotReportMotion";
       }
 
-      //...now
-      d = document.getElementById("data");
-      d.innerHTML("position:\nx: "+x+"\ny: "+y);
-
-      socket.emit('event', {header:'/pos',values:[x,y]});
-
     })
     .catch(console.error);
   } else {
@@ -204,6 +198,8 @@ function draw() {
     x = map(mouseX, 0, height, 1, 0);
     y = map(mouseY, 0, height, 1, 0);
   }
+  
+  socket.emit('event', {header:'/pos',values:[x,y]});
 
 }
 
