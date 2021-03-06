@@ -13,6 +13,7 @@ var verbose = 0, store = 0, mode = 1, url = '', userData=[];
  * HTTP routines
  * 
  */
+app.use(express.static(path.join(__dirname, 'public')));
 
 // serve the homepage
 app.get('/', (req, res) => {
