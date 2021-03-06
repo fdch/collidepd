@@ -16,7 +16,7 @@ var verbose = 0, store = 0, mode = 1, url = '', userData=[];
 
 // serve the homepage
 app.get('/', (req, res) => {
-  res.sendFile('index.html');
+  res.sendFile(__dirname + 'index.html');
 });
 
 function getKeys(obj) {
