@@ -1,3 +1,6 @@
+var socket;
+
+
 var accelRange = {
   rawX: 0.0, // raw value as reported by device motion
   loX: -10.0, // both axes will probably have same ranges, but you never know ..
@@ -134,13 +137,7 @@ var testForMotion = (function() {
     }
   };
 }());
-$(function() { // called when DOM is ready
-
-  // establishes a socket.io connection
-  var socket = io({transports: ['websocket']});
-
-
-
+function startController() {
 
   // testing iOS 13 motion permission
   // Guard against reference erros by checking that DeviceMotionEvent is defined
@@ -162,10 +159,10 @@ $(function() { // called when DOM is ready
       
       //...
 
-      main = document.getElementById("main");
-      main.innerHTML("position:\nx: "+x+"\ny: "+y);
+      d = document.getElementById("data");
+      d.innerHTML("position:\nx: "+x+"\ny: "+y);
 
-      socket.emit('pos', [x,y]);
+      socket.emit('/event', {header:'pos',values:[x,y]});
 
 
 
@@ -184,7 +181,9 @@ $(function() { // called when DOM is ready
       status = "deviceDoesNotReportMotion";
     }
   }
+}
+function startSocket() {
+  // establishes a socket.io connection
+  socket = io({transports: ['websocket']});
 
-
-
-});
+}

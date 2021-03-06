@@ -60,7 +60,7 @@
 	</script>
 </head>
 
-<body>
+<body onload="startSocket();">
 	<header id="menuheader">
 	<div id="imgdiv"></div>
 		<h1 class="headtitle">CollidePD</h1>
@@ -68,7 +68,12 @@
 	<nav id="navtag" class="headtitle"></nav>
 	</header>
 	<main>
-
+		<div id="controls">
+			<button id="start" onclick="startController();">Start Controller</button>
+		</div>
+		<div id="data">
+			
+		</div>
 
 
 		<!-- <div id="page">
