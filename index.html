@@ -39,15 +39,19 @@
 	<meta name="keywords"        content="websocket, network, performance, music, osc, socket.io">
 	<meta name="robots"          content="index,follow">
 	
-	<script src="./node_modules/socket.io/client-dist/socket.io.js"></script>
-    <script src="jquery-1.11.1.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <script src="gyronorm.complete.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+    <script src="/res/jquery-1.11.1.js"></script>
 
-	<link rel="stylesheet" type="text/css"         href="style.css">
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script> -->
+	
+	<!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> -->
+    
+    <script src="/res/gyronorm.complete.min.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/res/style.css">
 	<!-- Global site tag (gtag.js) - Google Analytics -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-151917938-1"></script>
+	
 	<script>
 	  window.dataLayer = window.dataLayer || [];
 	  function gtag(){dataLayer.push(arguments);}
@@ -55,6 +59,7 @@
 	  gtag('config', 'UA-151917938-1');
 	</script>
 </head>
+
 <body>
 	<header id="menuheader">
 	<div id="imgdiv"></div>
@@ -109,6 +114,6 @@
 </body>
 
 <!-- load our stuff -->
-<script type="text/javascript" src="webclient.js"></script>
+<script type="text/javascript" src="/res/webclient.js"></script>
 
 </html>
