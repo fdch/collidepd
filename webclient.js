@@ -1,202 +1,189 @@
-var gn;
+var accelRange = {
+  rawX: 0.0, // raw value as reported by device motion
+  loX: -10.0, // both axes will probably have same ranges, but you never know ..
+  hiX: 10.0,
+  scaleX: 20.0,   // total range of raw motion data (divide by this to get output in normalized range)
+  tempX: 0.0, // clamped raw value to be scaled
+  rawY: 0.0,
+  loY: -10.0,
+  hiY: 10.0,
+  scaleY: 20.0,
+  tempY: 0.0,
+  shouldReset: true // if (ToneMotion.deviceShouldSelfCalibrate), must reset thresholds once first
+}
+// self-calibrating device will call this often at first, then only with extreme motion
+function updateAccelRange() {
+  accelRange.scaleX = accelRange.hiX - accelRange.loX; // find full range of raw values
+  accelRange.scaleY = accelRange.hiY - accelRange.loY;
+}
 
-function init_gn() {
-  var args = {
-    logger: logger
+
+var x, y, print=1;
+
+var deviceIsAndroid, deviceShouldSelfCalibrate = 0;
+
+const userAgent = window.navigator.userAgent;
+
+if (userAgent.match(/Android/i)) {
+  deviceIsAndroid = true;
+}
+else {
+  deviceIsAndroid = false;
+}
+
+
+function handleMotionEvent(event) {
+  // get the raw accelerometer values (invert if Android)
+  if (deviceIsAndroid) {
+    accelRange.rawX = -(event.accelerationIncludingGravity.x);
+    accelRange.rawY = -(event.accelerationIncludingGravity.y);
+  }
+  else {
+    accelRange.rawX = event.accelerationIncludingGravity.x;
+    accelRange.rawY = event.accelerationIncludingGravity.y;
+  }
+  // calibrate range of values for clamp (only if device is set to self-calibrate)
+  if (deviceShouldSelfCalibrate) {
+    if (accelRange.shouldReset) { // only true initially
+      accelRange.loX = Number.POSITIVE_INFINITY; // anything will be less than this
+      accelRange.hiX = Number.NEGATIVE_INFINITY; // anything will be greater than this
+      accelRange.loY = Number.POSITIVE_INFINITY;
+      accelRange.hiY = Number.NEGATIVE_INFINITY;
+      accelRange.shouldReset = false; // only reset once
+    }
+    if (accelRange.rawX < accelRange.loX) { // new trough
+      accelRange.loX = accelRange.rawX;
+      updateAccelRange();
+    }
+    else if (accelRange.rawX > accelRange.hiX) { // new peak
+      accelRange.hiX = accelRange.rawX;
+      updateAccelRange();
+    }
+    if (accelRange.rawY < accelRange.loY) {
+      accelRange.loY = accelRange.rawY;
+      updateAccelRange();
+    }
+    else if (accelRange.rawY > accelRange.hiY) {
+      accelRange.hiY = accelRange.rawY;
+      updateAccelRange();
+    }
+  }
+  // clamp: if device does not self-calibrate, default to iOS range (typically -10 to 10)
+  if (accelRange.rawX < accelRange.loX) { // thresholds are immutable if ToneMotion.deviceShouldSelfCalibrate == false
+    accelRange.tempX = accelRange.loX;
+  }
+  else if (accelRange.rawX > accelRange.hiX) {
+    accelRange.tempX = accelRange.hiX;
+  }
+  else {
+    accelRange.tempX = accelRange.rawX;
+  }
+  if (accelRange.rawY < accelRange.loY) {
+    accelRange.tempY = accelRange.loY;
+  }
+  else if (accelRange.rawY > accelRange.hiY) {
+    accelRange.tempY = accelRange.hiY;
+  }
+  else {
+    accelRange.tempY = accelRange.rawY;
+  }
+  // normalize to 0.0 to 1.0
+  x  = (accelRange.tempX - accelRange.loX) / accelRange.scaleX; // set properties of ToneMotion object
+  y  = (accelRange.tempY - accelRange.loY) / accelRange.scaleY;
+}
+/*
+** TEST IF DEVICE REPORTS MOTION. If not, XY-pad will be added by interface.
+*/
+// If motion data doesn't change, either the device doesn't report motion or it's perfectly level
+var motionCheckIntervId; // interval ID for checking motion detection
+var motionCheckDur = 3; // number of seconds before concluding there is no motion detection
+var motionCheckInterval = 500; // number of milliseconds between checks
+var motionFailCount = (motionCheckDur*1000)/motionCheckInterval;
+// Set sensitivity below. Low sensitivity will say device isn't reporting motion if user is holding it fairly flat
+var motionCheckSensitivity = 0.01 // motion beyond this threshold shows device is moving
+var loThreshold = 0.5 - motionCheckSensitivity; // 0.5 is perfectly level
+var hiThreshold = 0.5 + motionCheckSensitivity;
+function beginMotionDetection() {
+  motionCheckIntervId = setInterval(testForMotion, motionCheckInterval);
+}
+// closure keeps counter of failed attempts at polling device motion
+var testForMotion = (function() {
+  var counter = 1; // counter incremented *after* test
+  return function() {
+    if ( (x > loThreshold && x < hiThreshold) && (y > loThreshold & y < hiThreshold) ) {
+      // no motion detected. check if motionFailCount is exceeded and increment counter.
+      if (print) { console.log("No device motion detected. motionFailCount: " + counter); }
+      if (counter > motionFailCount || status === "deviceDoesNotReportMotion") {
+        // Either the device isn't moving or it will not report motion
+        // iOS 12.2 requires permission for motion access but does not support permission API so user has to set manually
+        // This scenario is pretty awkward because user has to go to settings and change them, then MUST reload page. This only happens on iOS devices from 12.2 up to before 13
+        // This also happens on Chrome on laptop because it claims to report device motion but does not actually do it.
+        window.alert("Your device is not reporting motion. You may either be on a desktop computer, or this may be a result of your mobile browser settings. If you're on an iPhone, go to Settings > Safari > Motion & Orientation Access and make sure this setting is on. Reload the page to try again, or continue to launch the desktop version.");
+
+        status = "deviceDoesNotReportMotion";
+        window.removeEventListener("devicemotion", handleMotionEvent, true); // stops listening for motion
+        clearInterval(motionCheckIntervId);
+      }
+      return counter++;
+    }
+    else {
+      status = "deviceDoesReportMotion";
+      counter = 0; // motion detected. reset counter and use in future if letting user test again
+      clearInterval(motionCheckIntervId); // stops testing for motion handling
+      return counter;
+    }
   };
-
-  gn = new GyroNorm();
-
-  gn.init(args).then(function() {
-    var isAvailable = gn.isAvailable();
-    if(!isAvailable.deviceOrientationAvailable) {
-      logger({message:'Device orientation is not available.'});
-    }
-
-    if(!isAvailable.accelerationAvailable) {
-      logger({message:'Device acceleration is not available.'});
-    }
-
-    if(!isAvailable.accelerationIncludingGravityAvailable) {
-      logger({message:'Device acceleration incl. gravity is not available.'});
-    } 
-
-    if(!isAvailable.rotationRateAvailable) {
-      logger({message:'Device rotation rate is not available.'});
-    }
-
-    start_gn();
-  }).catch(function(e){
-
-    console.log(e);
-    
-  });
-}
-
-function logger(data) {
-  $('#error-message').append(data.message + "\n");
-}
-
-function stop_gn() {
-  gn.stop();
-}
-
-function start_gn() {
-  gn.start(gnCallBack);
-}
-
-function gnCallBack(data) {
-  $('#do_alpha').val(data.do.alpha);
-  $('#do_beta').val(data.do.beta);
-  $('#do_gamma').val(data.do.gamma);
-
-  $('#dm_x').val(data.dm.x);
-  $('#dm_y').val(data.dm.y);
-  $('#dm_z').val(data.dm.z);
-
-  $('#dm_gx').val(data.dm.gx);
-  $('#dm_gy').val(data.dm.gy);
-  $('#dm_gz').val(data.dm.gz);
-
-  $('#dm_alpha').val(data.dm.alpha);
-  $('#dm_beta').val(data.dm.beta);
-  $('#dm_gamma').val(data.dm.gamma);
-}
-
-function norm_gn() {
-  gn.normalizeGravity(true);
-}
-
-function org_gn() {
-  gn.normalizeGravity(false);
-}
-
-function set_head_gn() {
-  gn.setHeadDirection();
-}
-
-function showDO() {
-  $('#do').show();
-  $('#dm').hide();
-  $('#btn-dm').removeClass('selected');
-  $('#btn-do').addClass('selected');
-}
-
-function showDM() {
-  $('#dm').show();
-  $('#do').hide();
-  $('#btn-do').removeClass('selected');
-  $('#btn-dm').addClass('selected');
-}
-
+}());
 $(function() { // called when DOM is ready
 
   // establishes a socket.io connection
-  var socket = io();
-
-  // interface functions
-  $('#shootbutton1').click(function() {
-    socket.emit('inc', '1');
-    console.log("increaseP1");
-    return false; // false does not reload the page
-  });
-
-  $('#inc-button1').click(function() {
-    socket.emit('inc', '1');
-    console.log("increaseP1");
-    return false; // false does not reload the page
-  });
-
-  $('#inc-button2').click(function() {
-    socket.emit('inc', '2');
-    console.log("increaseP2");
-    return false; // false does not reload the page
-  });
-
-  $('#inc-button3').click(function() {
-    socket.emit('inc', '3');
-    console.log("increaseP3");
-    return false; // false does not reload the page
-  });
-
-  $('#inc-button4').click(function() {
-    socket.emit('inc', '4');
-    console.log("increaseP4");
-    return false; // false does not reload the page
-  });
-
-  $('#dec-button1').click(function() {
-    socket.emit('dec', '1');
-    console.log("decreaseP1");
-    return false; // false does not reload the page
-  });
-
-  $('#dec-button2').click(function() {
-    socket.emit('dec', '2');
-    console.log("decreaseP2");
-    return false; // false does not reload the page
-  });
-
-  $('#dec-button3').click(function() {
-    socket.emit('dec', '3');
-    console.log("decreaseP3");
-    return false; // false does not reload the page
-  });
-
-  $('#dec-button4').click(function() {
-    socket.emit('dec', '4');
-    console.log("decreaseP4");
-    return false; // false does not reload the page
-  });
-
-  $('#collectible-button').click(function() {
-    socket.emit('spawnCollectible');
-    console.log("spawning collectible");
-    return false; // false does not reload the page
-  });
-
-
-  $('#dec-tempo').click(function() {
-    socket.emit('decreaseTempo', socket.id);
-    console.log("decreasing Tempo");
-    return false; // false does not reload the page
-  });
-
-  $('#inc-tempo').click(function() {
-    socket.emit('increaseTempo', socket.id);
-    console.log("increasing Tempo");
-    return false; // false does not reload the page
-  });
+  var socket = io({transports: ['websocket']});
 
 
 
 
+  // testing iOS 13 motion permission
+  // Guard against reference erros by checking that DeviceMotionEvent is defined
+  if (typeof DeviceMotionEvent !== 'undefined' &&
+  typeof DeviceMotionEvent.requestPermission === 'function') {
+    // Device requests motion permission (e.g., iOS 13+)
+    // delayPlayingUntilPermission = true;
+    DeviceMotionEvent.requestPermission()
+    .then(permissionState => {
+      if (permissionState === 'granted') {
+        window.addEventListener("devicemotion", handleMotionEvent, true);
+      } else {
+        // user has not give permission for motion. Pretend device is laptop
+        status = "deviceDoesNotReportMotion";
+      }
+      
+
+      // NOW we can get position
+      
+      //...
+
+      main = document.getElementById("main");
+      main.innerHTML("position:\nx: "+x+"\ny: "+y);
+
+      socket.emit('pos', [x,y]);
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    })
+    .catch(console.error);
+  } else {
+    // handle non iOS 13+ devices, which could still report motion
+    console.log('Not an iOS 13+ device');
+    if ('DeviceMotionEvent' in window) {
+      console.log('Device claims DeviceMotionEvent in window');
+      window.addEventListener("devicemotion", handleMotionEvent, true);
+      // But wait! My laptop sometimes says it reports motion but doesn't. Check for that case below.
+      beginMotionDetection();
+    }
+    else {
+      status = "deviceDoesNotReportMotion";
+    }
+  }
 
 
 
