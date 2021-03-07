@@ -52,57 +52,80 @@ function handleMotionEvent(event) {
     accelRange.rawY = event.accelerationIncludingGravity.y;
     accelRange.rawZ = event.accelerationIncludingGravity.z;
   }
-  x = accelRange.rawX;
-  y = accelRange.rawY;
-  z = accelRange.rawZ;
-  // // calibrate range of values for clamp (only if device is set to self-calibrate)
-  // if (deviceShouldSelfCalibrate) {
-  //   if (accelRange.shouldReset) { // only true initially
-  //     accelRange.loX = Number.POSITIVE_INFINITY; // anything will be less than this
-  //     accelRange.hiX = Number.NEGATIVE_INFINITY; // anything will be greater than this
-  //     accelRange.loY = Number.POSITIVE_INFINITY;
-  //     accelRange.hiY = Number.NEGATIVE_INFINITY;
-  //     accelRange.shouldReset = false; // only reset once
-  //   }
-  //   if (accelRange.rawX < accelRange.loX) { // new trough
-  //     accelRange.loX = accelRange.rawX;
-  //     updateAccelRange();
-  //   }
-  //   else if (accelRange.rawX > accelRange.hiX) { // new peak
-  //     accelRange.hiX = accelRange.rawX;
-  //     updateAccelRange();
-  //   }
-  //   if (accelRange.rawY < accelRange.loY) {
-  //     accelRange.loY = accelRange.rawY;
-  //     updateAccelRange();
-  //   }
-  //   else if (accelRange.rawY > accelRange.hiY) {
-  //     accelRange.hiY = accelRange.rawY;
-  //     updateAccelRange();
-  //   }
-  // }
-  // // clamp: if device does not self-calibrate, default to iOS range (typically -10 to 10)
-  // if (accelRange.rawX < accelRange.loX) { // thresholds are immutable if ToneMotion.deviceShouldSelfCalibrate == false
-  //   accelRange.tempX = accelRange.loX;
-  // }
-  // else if (accelRange.rawX > accelRange.hiX) {
-  //   accelRange.tempX = accelRange.hiX;
-  // }
-  // else {
-  //   accelRange.tempX = accelRange.rawX;
-  // }
-  // if (accelRange.rawY < accelRange.loY) {
-  //   accelRange.tempY = accelRange.loY;
-  // }
-  // else if (accelRange.rawY > accelRange.hiY) {
-  //   accelRange.tempY = accelRange.hiY;
-  // }
-  // else {
-  //   accelRange.tempY = accelRange.rawY;
-  // }
-  // // normalize to 0.0 to 1.0
-  // x  = (accelRange.tempX - accelRange.loX) / accelRange.scaleX; // set properties of ToneMotion object
-  // y  = (accelRange.tempY - accelRange.loY) / accelRange.scaleY;
+  // calibrate range of values for clamp (only if device is set to self-calibrate)
+  if (deviceShouldSelfCalibrate) {
+    if (accelRange.shouldReset) { // only true initially
+      accelRange.loX = Number.POSITIVE_INFINITY; // anything will be less than this
+      accelRange.hiX = Number.NEGATIVE_INFINITY; // anything will be greater than this
+      accelRange.loY = Number.POSITIVE_INFINITY;
+      accelRange.hiY = Number.NEGATIVE_INFINITY;
+      accelRange.loZ = Number.POSITIVE_INFINITY;
+      accelRange.hiZ = Number.NEGATIVE_INFINITY;
+      accelRange.shouldReset = false; // only reset once
+    }
+    if (accelRange.rawX < accelRange.loX) { // new trough
+      accelRange.loX = accelRange.rawX;
+      updateAccelRange();
+    }
+    else if (accelRange.rawX > accelRange.hiX) { // new peak
+      accelRange.hiX = accelRange.rawX;
+      updateAccelRange();
+    }
+    if (accelRange.rawY < accelRange.loY) {
+      accelRange.loY = accelRange.rawY;
+      updateAccelRange();
+    }
+    else if (accelRange.rawY > accelRange.hiY) {
+      accelRange.hiY = accelRange.rawY;
+      updateAccelRange();
+    }
+    if (accelRange.rawZ < accelRange.loZ) {
+      accelRange.loZ = accelRange.rawZ;
+      updateAccelRange();
+    }
+    else if (accelRange.rawZ > accelRange.hiZ) {
+      accelRange.hiZ = accelRange.rawZ;
+      updateAccelRange();
+    }
+  }
+  // clamp: if device does not self-calibrate, default to iOS range (typically -10 to 10)
+  if (accelRange.rawX < accelRange.loX) { 
+  // thresholds are immutable if ToneMotion.deviceShouldSelfCalibrate == false
+    accelRange.tempX = accelRange.loX;
+  }
+  else if (accelRange.rawX > accelRange.hiX) {
+    accelRange.tempX = accelRange.hiX;
+  }
+  else {
+    accelRange.tempX = accelRange.rawX;
+  }
+
+
+  if (accelRange.rawY < accelRange.loY) {
+    accelRange.tempY = accelRange.loY;
+  }
+  else if (accelRange.rawY > accelRange.hiY) {
+    accelRange.tempY = accelRange.hiY;
+  }
+  else {
+    accelRange.tempY = accelRange.rawY;
+  }
+
+
+  if (accelRange.rawZ < accelRange.loZ) {
+    accelRange.tempZ = accelRange.loZ;
+  }
+  else if (accelRange.rawZ > accelRange.hiZ) {
+    accelRange.tempZ = accelRange.hiZ;
+  }
+  else {
+    accelRange.tempZ = accelRange.rawZ;
+  }
+
+  // normalize to 0.0 to 1.0
+  x  = (accelRange.tempX - accelRange.loX) / accelRange.scaleX;
+  y  = (accelRange.tempY - accelRange.loY) / accelRange.scaleY;
+  z  = (accelRange.tempZ - accelRange.loZ) / accelRange.scaleZ;
 }
 /*
 ** TEST IF DEVICE REPORTS MOTION. If not, XY-pad will be added by interface.
@@ -127,7 +150,7 @@ function beginMotionDetection() {
 var testForMotion = (function() {
   var counter = 1; // counter incremented *after* test
   return function() {
-    if ( (x > loThreshold && x < hiThreshold) && (y > loThreshold & y < hiThreshold) ) {
+    if ( (x > loThreshold && x < hiThreshold) && (y > loThreshold & y < hiThreshold) && (z > loThreshold & z < hiThreshold)) {
       // no motion detected. check if motionFailCount is exceeded and increment counter.
       if (print) { console.log("No device motion detected. motionFailCount: " + counter); }
       if (counter > motionFailCount || status === "deviceDoesNotReportMotion") {
