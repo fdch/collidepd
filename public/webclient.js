@@ -52,6 +52,9 @@ function handleMotionEvent(event) {
     accelRange.rawY = event.accelerationIncludingGravity.y;
     accelRange.rawZ = event.accelerationIncludingGravity.z;
   }
+  x = accelRange.rawX;
+  y = accelRange.rawY;
+  z = accelRange.rawZ;
   // // calibrate range of values for clamp (only if device is set to self-calibrate)
   // if (deviceShouldSelfCalibrate) {
   //   if (accelRange.shouldReset) { // only true initially
@@ -241,12 +244,7 @@ function draw() {
   num = y * 14;
 
   if (connected==1) {
-    socket.emit('event', {header:'/xyz',values:
-      [
-      accelRange.rawX,
-      accelRange.rawY,
-      accelRange.rawZ
-      ]});
+    socket.emit('event', {header:'/xyz',values:[x,y,z]});
     socket.emit('event', {header:'/act',values:
       [
       motion.turned,
