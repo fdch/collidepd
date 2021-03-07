@@ -121,7 +121,8 @@ function updateDict(socket,userData,prop,header,values,f) {
     const newStuff = {
       head: header,
       value: values,
-      time: new Date().getTime()
+      time: new Date().getTime(),
+      id: socket.id
     }
     // broadcasts a prop to all clients
     broadcast(socket, prop, newStuff);

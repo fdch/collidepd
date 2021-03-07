@@ -142,7 +142,7 @@ var testForMotion = (function() {
 
 function startController() {
 
-  socket.emit('chat', {header:"hello", values:"world"});
+  // socket.emit('chat', {header:"hello", values:"world"});
   // testing iOS 13 motion permission
   // Guard against reference erros by checking that DeviceMotionEvent is defined
   if (typeof DeviceMotionEvent !== 'undefined' &&
@@ -229,10 +229,6 @@ function draw() {
   if (status == "deviceDoesNotReportMotion") {
     x = map(mouseX, 0, height, 1, 0);
     y = map(mouseY, 0, height, 1, 0);
-  } else {
-    // x = motion.turned;
-    // y = motion.shaken;
-    // z = motion.moved;
   }
 
   if (connected==1) {
