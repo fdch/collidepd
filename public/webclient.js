@@ -8,11 +8,19 @@ var accelRange = {
   hiX: 10.0,
   scaleX: 20.0,   // total range of raw motion data (divide by this to get output in normalized range)
   tempX: 0.0, // clamped raw value to be scaled
+  
   rawY: 0.0,
   loY: -10.0,
   hiY: 10.0,
   scaleY: 20.0,
   tempY: 0.0,
+  
+  rawZ: 0.0,
+  loZ: -10.0,
+  hiZ: 10.0,
+  scaleZ: 20.0,
+  tempZ: 0.0,
+  
   shouldReset: true // if (ToneMotion.deviceShouldSelfCalibrate), must reset thresholds once first
 }
 
@@ -37,59 +45,61 @@ function handleMotionEvent(event) {
   if (deviceIsAndroid) {
     accelRange.rawX = -(event.accelerationIncludingGravity.x);
     accelRange.rawY = -(event.accelerationIncludingGravity.y);
+    accelRange.rawZ = -(event.accelerationIncludingGravity.z);
   }
   else {
     accelRange.rawX = event.accelerationIncludingGravity.x;
     accelRange.rawY = event.accelerationIncludingGravity.y;
+    accelRange.rawZ = event.accelerationIncludingGravity.z;
   }
-  // calibrate range of values for clamp (only if device is set to self-calibrate)
-  if (deviceShouldSelfCalibrate) {
-    if (accelRange.shouldReset) { // only true initially
-      accelRange.loX = Number.POSITIVE_INFINITY; // anything will be less than this
-      accelRange.hiX = Number.NEGATIVE_INFINITY; // anything will be greater than this
-      accelRange.loY = Number.POSITIVE_INFINITY;
-      accelRange.hiY = Number.NEGATIVE_INFINITY;
-      accelRange.shouldReset = false; // only reset once
-    }
-    if (accelRange.rawX < accelRange.loX) { // new trough
-      accelRange.loX = accelRange.rawX;
-      updateAccelRange();
-    }
-    else if (accelRange.rawX > accelRange.hiX) { // new peak
-      accelRange.hiX = accelRange.rawX;
-      updateAccelRange();
-    }
-    if (accelRange.rawY < accelRange.loY) {
-      accelRange.loY = accelRange.rawY;
-      updateAccelRange();
-    }
-    else if (accelRange.rawY > accelRange.hiY) {
-      accelRange.hiY = accelRange.rawY;
-      updateAccelRange();
-    }
-  }
-  // clamp: if device does not self-calibrate, default to iOS range (typically -10 to 10)
-  if (accelRange.rawX < accelRange.loX) { // thresholds are immutable if ToneMotion.deviceShouldSelfCalibrate == false
-    accelRange.tempX = accelRange.loX;
-  }
-  else if (accelRange.rawX > accelRange.hiX) {
-    accelRange.tempX = accelRange.hiX;
-  }
-  else {
-    accelRange.tempX = accelRange.rawX;
-  }
-  if (accelRange.rawY < accelRange.loY) {
-    accelRange.tempY = accelRange.loY;
-  }
-  else if (accelRange.rawY > accelRange.hiY) {
-    accelRange.tempY = accelRange.hiY;
-  }
-  else {
-    accelRange.tempY = accelRange.rawY;
-  }
-  // normalize to 0.0 to 1.0
-  x  = (accelRange.tempX - accelRange.loX) / accelRange.scaleX; // set properties of ToneMotion object
-  y  = (accelRange.tempY - accelRange.loY) / accelRange.scaleY;
+  // // calibrate range of values for clamp (only if device is set to self-calibrate)
+  // if (deviceShouldSelfCalibrate) {
+  //   if (accelRange.shouldReset) { // only true initially
+  //     accelRange.loX = Number.POSITIVE_INFINITY; // anything will be less than this
+  //     accelRange.hiX = Number.NEGATIVE_INFINITY; // anything will be greater than this
+  //     accelRange.loY = Number.POSITIVE_INFINITY;
+  //     accelRange.hiY = Number.NEGATIVE_INFINITY;
+  //     accelRange.shouldReset = false; // only reset once
+  //   }
+  //   if (accelRange.rawX < accelRange.loX) { // new trough
+  //     accelRange.loX = accelRange.rawX;
+  //     updateAccelRange();
+  //   }
+  //   else if (accelRange.rawX > accelRange.hiX) { // new peak
+  //     accelRange.hiX = accelRange.rawX;
+  //     updateAccelRange();
+  //   }
+  //   if (accelRange.rawY < accelRange.loY) {
+  //     accelRange.loY = accelRange.rawY;
+  //     updateAccelRange();
+  //   }
+  //   else if (accelRange.rawY > accelRange.hiY) {
+  //     accelRange.hiY = accelRange.rawY;
+  //     updateAccelRange();
+  //   }
+  // }
+  // // clamp: if device does not self-calibrate, default to iOS range (typically -10 to 10)
+  // if (accelRange.rawX < accelRange.loX) { // thresholds are immutable if ToneMotion.deviceShouldSelfCalibrate == false
+  //   accelRange.tempX = accelRange.loX;
+  // }
+  // else if (accelRange.rawX > accelRange.hiX) {
+  //   accelRange.tempX = accelRange.hiX;
+  // }
+  // else {
+  //   accelRange.tempX = accelRange.rawX;
+  // }
+  // if (accelRange.rawY < accelRange.loY) {
+  //   accelRange.tempY = accelRange.loY;
+  // }
+  // else if (accelRange.rawY > accelRange.hiY) {
+  //   accelRange.tempY = accelRange.hiY;
+  // }
+  // else {
+  //   accelRange.tempY = accelRange.rawY;
+  // }
+  // // normalize to 0.0 to 1.0
+  // x  = (accelRange.tempX - accelRange.loX) / accelRange.scaleX; // set properties of ToneMotion object
+  // y  = (accelRange.tempY - accelRange.loY) / accelRange.scaleY;
 }
 /*
 ** TEST IF DEVICE REPORTS MOTION. If not, XY-pad will be added by interface.
@@ -221,20 +231,26 @@ function setup() {
 }
 
 function draw() {
-  col = map(mouseY, 0, height, 255, 0);
-  num = map(mouseX, 0, width, 1, 14);
-  // console.log(col,num);
-  hexagon(col,num,i);
-
+  
   if (status == "deviceDoesNotReportMotion") {
-    x = map(mouseX, 0, height, 1, 0);
+    x = map(mouseX, 0, width, 1, 0);
     y = map(mouseY, 0, height, 1, 0);
+    z = map(mouseY+mouseX, 0, height, 1, 0);
   }
+  col = x * 255;
+  num = y * 14;
 
   if (connected==1) {
-    socket.emit('event', {header:'/pos',values:[x,y]});
+    socket.emit('event', {header:'/xyz',values:[x,y,z]});
+    socket.emit('event', {header:'/act',values:
+      [
+      motion.turned,
+      motion.shaken,
+      motion.moved
+      ]});
   }
 
+  hexagon(col,num,i);
 }
 
 var i, a;
