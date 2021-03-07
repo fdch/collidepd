@@ -1,5 +1,5 @@
 var canvas, socket, connected=0;
-var x, y, print=1;
+var x, y, z, print=1;
 var deviceIsAndroid, deviceShouldSelfCalibrate = 0;
 
 var accelRange = {
@@ -190,8 +190,31 @@ function startSocket() {
     }}, 1000);
 }
 
+let motion = {
+  turned: 0,
+  moved: 0,
+  shaken: 0
+};
 
-
+function deviceMoved() {
+  motion.moved = motion.moved + 5;
+  if (motion.moved > 255) {
+    motion.moved = 0;
+  }
+}
+function deviceTurned() {
+  if (motion.turned === 0) {
+    motion.turned = 255;
+  } else if (motion.turned === 255) {
+    motion.turned = 0;
+  }
+}
+function deviceShaken() {
+  motion.shaken = motion.shaken + 5;
+  if (motion.shaken > 255) {
+    motion.shaken = 0;
+  }
+}
 function setup() {
   canvas = createCanvas(windowWidth, windowHeight);
   frameRate(30);
@@ -206,6 +229,10 @@ function draw() {
   if (status = "deviceDoesNotReportMotion") {
     x = map(mouseX, 0, height, 1, 0);
     y = map(mouseY, 0, height, 1, 0);
+  } else {
+    x = motion.turned;
+    y = motion.shaken;
+    z = motion.moved;
   }
 
   if (connected==1) {
