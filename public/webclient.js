@@ -241,7 +241,12 @@ function draw() {
   num = y * 14;
 
   if (connected==1) {
-    socket.emit('event', {header:'/xyz',values:[x,y,z]});
+    socket.emit('event', {header:'/xyz',values:
+      [
+      accelRange.rawX,
+      accelRange.rawY,
+      accelRange.rawZ
+      ]});
     socket.emit('event', {header:'/act',values:
       [
       motion.turned,
