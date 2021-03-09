@@ -304,12 +304,12 @@ io.sockets.on('connection', function(socket) {
    *  'clear' message : removes all server-side data
    *
    */
-  // socket.on('clear', function() {
-  //   // wipes out the server-side storage of user data
-  //   var m = 'All user data cleared by ' + getUsername(u);
-  //   broadcast(socket,'users',m);
-  //   userData=[];
-  // });
+  socket.on('clear', function() {
+    // wipes out the server-side storage of user data
+    var m = 'All user data cleared by ' + getUsername(u);
+    broadcast(socket,'users',m);
+    userData=[];
+  });
   /*
    *
    *  'verbose' message : verbosity level for console posting
