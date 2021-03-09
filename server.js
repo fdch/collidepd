@@ -151,7 +151,8 @@ io.sockets.on('connection', function(socket) {
    *    
    */
   userData.push({ 
-    id: sid, 
+    id: sid,
+    oscid: -1,
     data: {
       name: '',
       event: [],
@@ -162,20 +163,21 @@ io.sockets.on('connection', function(socket) {
   })
   /*
    *
-   * Report connection and how many users are online
-   *
-   */
-  socket.emit('connected');
-  broadcast(socket,'users',userData.length);
-  /*
-   *
    * get user reference and index for later use
    *
    */
   usr = getObjectReference(userData, 'id', sid);
   u   = usr[0];
   ui  = usr[1];
+  // feed the user index to the oscid key
+  userData[ui]['oscid']=ui;
   /*
+   *
+   * Report connection and how many users are online
+   *
+   */
+  socket.emit('connected');
+  broadcast(socket,'users',userData);  /*
    *
    * Handles user disconnecting
    *  - remove from list 
@@ -185,8 +187,7 @@ io.sockets.on('connection', function(socket) {
    */
   socket.on('disconnect', function() {
     userData.splice(ui,1);
-    broadcast(socket, 'console', getUsername(u) + " disconnected.");
-    broadcast(socket, 'users', userData.length);
+    broadcast(socket, 'users', userData);
   });
   /*
    *
