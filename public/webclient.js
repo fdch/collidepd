@@ -214,7 +214,10 @@ function startController() {
 
 function startSocket() {
   // establishes a socket.io connection
-  socket = io({transports: ['websocket']});
+  socket = io({
+    transports: ['websocket'],
+    autoConnect: true
+  });
   var checkSocket = setInterval(function() {
     if (socket.connected) {
       connected = 1;
@@ -224,6 +227,13 @@ function startSocket() {
     } else {
       connected = -1;
     }}, 1000);
+}
+
+function stopSocket() {
+  // establishes a socket.io connection
+  if (socket.connected) {
+    socket.close();
+  }
 }
 
 let motion = {
