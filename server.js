@@ -187,6 +187,7 @@ io.sockets.on('connection', function(socket) {
    */
   socket.on('disconnect', function() {
     userData.splice(ui,1);
+    broadcast(socket, 'killuser', ui);
     broadcast(socket, 'userdata', userData);
     broadcast(socket, 'users', userData.length);
   });
