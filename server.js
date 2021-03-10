@@ -177,7 +177,7 @@ io.sockets.on('connection', function(socket) {
    *
    */
   socket.emit('connected');
-  broadcast(socket,'users',userData);  /*
+  broadcast(socket,'userdata',userData);  /*
    *
    * Handles user disconnecting
    *  - remove from list 
@@ -187,7 +187,8 @@ io.sockets.on('connection', function(socket) {
    */
   socket.on('disconnect', function() {
     userData.splice(ui,1);
-    broadcast(socket, 'users', userData);
+    broadcast(socket, 'userdata', userData);
+    broadcast(socket, 'users', userData.length);
   });
   /*
    *
@@ -218,8 +219,8 @@ io.sockets.on('connection', function(socket) {
     if (m) {
       // broadcast a name change if there was one
       // and send the new user the list of all users
-      broadcast(socket,'users',m);
-      socket.emit('users', getUserList(userData));
+      broadcast(socket,'usernames',m);
+      socket.emit('usernames', getUserList(userData));
     }
   });
   /*
@@ -232,9 +233,9 @@ io.sockets.on('connection', function(socket) {
    *   -- 'all': all the chats that have ever occured
    *
    */
-  socket.on('users', function() {
-    // emits a list of user names or ids to the caller
-    socket.emit('users', getUserList(userData));
+  socket.on('userdata', function() {
+    // send user data
+    socket.emit('userdata', userData);
   })
   socket.on('chats', function() {
     var m, x = arguments[1];
