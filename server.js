@@ -329,6 +329,14 @@ io.sockets.on('connection', function(socket) {
   socket.on('mode', function(x) {
     mode = x;
   });
+  /*
+  * turn socket on or off from web client
+  *
+  */
+  socket.on('onoff', function(x) {
+    socket.broadcast.emit('onoff',ui,x); 
+  });
+
 });
 /*
  *

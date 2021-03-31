@@ -1,7 +1,7 @@
 var canvas, socket, connected=0;
 var x, y, z, print=1;
 var deviceIsAndroid, deviceShouldSelfCalibrate = 0;
-
+var moving = false; // is user moving
 var accelRange = {
   rawX: 0.0, // raw value as reported by device motion
   loX: -10.0, // both axes will probably have same ranges, but you never know ..
@@ -162,6 +162,9 @@ var testForMotion = (function() {
 
         status = "deviceDoesNotReportMotion";
         window.removeEventListener("devicemotion", handleMotionEvent, true); // stops listening for motion
+        moving = false;
+        if ( socket.connected ) socket.emit('onoff', 0);
+
         clearInterval(motionCheckIntervId);
       }
       return counter++;
@@ -189,6 +192,8 @@ function startController() {
     .then(permissionState => {
       if (permissionState === 'granted') {
         window.addEventListener("devicemotion", handleMotionEvent, true);
+        moving = true;
+        if ( socket.connected ) socket.emit('onoff', 1);
       } else {
         // user has not give permission for motion. Pretend device is laptop
         status = "deviceDoesNotReportMotion";
@@ -204,13 +209,18 @@ function startController() {
       window.addEventListener("devicemotion", handleMotionEvent, true);
       // But wait! My laptop sometimes says it reports motion but doesn't. Check for that case below.
       beginMotionDetection();
+      moving = true;
+      if ( socket.connected ) socket.emit('onoff', 1);
     }
     else {
       status = "deviceDoesNotReportMotion";
     }
   }
 }
-
+function stopController() {
+  window.removeEventListener("devicemotion", handleMotionEvent, true); // stops listening for motion
+  moving = false;
+}
 
 function startSocket() {
   // establishes a socket.io connection
@@ -268,6 +278,8 @@ function setup() {
 
 function draw() {
   
+  if (connected==1) {
+  
   if (status == "deviceDoesNotReportMotion") {
     x = map(mouseX, 0, width, 1, 0);
     y = map(mouseY, 0, height, 1, 0);
@@ -276,17 +288,19 @@ function draw() {
   col = x * 255;
   num = y * 14;
 
-  if (connected==1) {
-    socket.emit('event', {header:'/xyz',values:[x,y,z]});
-    socket.emit('event', {header:'/act',values:
-      [
-      motion.turned,
-      motion.shaken,
-      motion.moved
-      ]});
+  if (moving) {
+      socket.emit('event', {header:'/xyz',values:[x,y,z]});
+      socket.emit('event', {header:'/act',values:
+        [
+        motion.turned,
+        motion.shaken,
+        motion.moved
+        ]});
+
+    hexagon(col,num,i);
+    }
   }
 
-  hexagon(col,num,i);
 }
 
 var i, a;
