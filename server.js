@@ -176,8 +176,9 @@ io.sockets.on('connection', function(socket) {
    * Report connection and how many users are online
    *
    */
-  socket.emit('connected');
-  broadcast(socket,'userdata',userData);  /*
+  broadcast(socket,'userdata',userData);  
+  socket.emit('connected', ui); // connects user oscid form osc
+  /*
    *
    * Handles user disconnecting
    *  - remove from list 
@@ -187,7 +188,7 @@ io.sockets.on('connection', function(socket) {
    */
   socket.on('disconnect', function() {
     userData.splice(ui,1);
-    broadcast(socket, 'killuser', ui);
+    broadcast(socket, 'disconnected', ui); // disconnect user oscid from osc
     broadcast(socket, 'userdata', userData);
     broadcast(socket, 'users', userData.length);
   });
