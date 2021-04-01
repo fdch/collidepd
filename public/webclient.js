@@ -245,6 +245,18 @@ function stopSocket() {
     socket.close();
   }
 }
+var playerTitle = document.getElementById('userid');
+var statusTitle = document.getElementById('status');
+
+socket.on('connected', function(uid) {
+    playerTitle.innerHTML = uid.toString();
+    statusTitle.innerHTML = 'connected'
+});
+socket.on('disconnected', function(uid) {
+    playerTitle.innerHTML = -1;
+    statusTitle.innerHTML = 'disconnected'
+});
+
 
 let motion = {
   turned: 0,
