@@ -5,10 +5,13 @@ const http = require('http');
 const server = http.Server(app);
 const io = require('socket.io')(server);
 const PORT = process.env.PORT || 80;
+const MAXUSERS = 1002;
 // store everythin here for now:
-var verbose = 0, store = 0, mode = 1, url = '', userData=[];
-
-
+let verbose = 0, store = 0, mode = 1, url = '';
+let slots = new Array(MAXUSERS); // slots for the players
+let userData = new Array(MAXUSERS); // data for players
+userData.fill(0); // fill the array with zeros
+slots.fill(0);
 /* 
  * 
  * HTTP routines
@@ -142,207 +145,65 @@ function updateDict(socket,userData,prop,header,values,f) {
  *
  */
 io.sockets.on('connection', function(socket) {
-  var usr=[], u, ui, sid = socket.id;
-  /*
-   *   
-   *  Update the userData with the new socket id 
-   *  and with the basic data structure for each user:
-   *    an object with id,data, and time keys within an array of objects
-   *    
-   */
-  userData.push({ 
-    id: sid,
-    oscid: -1,
-    data: {
-      name: '',
-      event: [],
-      control: [],
-      chat: []
-    },  
-    time: new Date().getTime()
-  })
-  /*
-   *
-   * get user reference and index for later use
-   *
-   */
-  usr = getObjectReference(userData, 'id', sid);
-  u   = usr[0];
-  ui  = usr[1];
-  // feed the user index to the oscid key
-  userData[ui]['oscid']=ui;
-  /*
-   *
-   * Report connection and how many users are online
-   *
-   */
-  broadcast(socket,'userdata',userData);  
-  socket.emit('connected', ui); // connects user oscid form osc
-  /*
-   *
-   * Handles user disconnecting
-   *  - remove from list 
-   *  - broadcast and post to console
-   *  - report how many users are online
-   *  
-   */
-  socket.on('disconnect', function() {
-    userData.splice(ui,1);
-    broadcast(socket, 'disconnected', ui); // disconnect user oscid from osc
-    broadcast(socket, 'userdata', userData);
-    broadcast(socket, 'users', userData.length);
-  });
-  /*
-   *
-   * 'name' updates the name on the current user
-   *  - adds or updates a name property to the userData array
-   *  
-   */
-  socket.on('name',function(x) {
-    var m;
-    // check if user object has a 'name' property
-    if ( u.data.hasOwnProperty('name') && u.data.name) {
-      // get the users old name
-      var old=u.data.name;
 
-      // check if the old name is different from the new name (x)
-      if (old.localeCompare(x)) {
-        u.data.name = x;
-        m = old + " changed name to: " + x + ".";
-      } else {
-        // no need to change the name
-        m = 0;
-      }
-    } else {
-      // add a name property to the object with value x
-      u.data.name = x;
-      m = "User '"+socket.id+"' now has a name. Welcome, "+x+"!";
-    }
-    if (m) {
-      // broadcast a name change if there was one
-      // and send the new user the list of all users
-      broadcast(socket,'usernames',m);
-      socket.emit('usernames', getUserList(userData));
-    }
+  var u;
+
+  // look for an empty slot:
+  var s = slots.findIndex( (e) => e === 0 );
+  slots[s] = 1;
+  
+  console.log("slot:%d -- %s", s, socket.id);
+
+  const ud = { 
+    id: socket.id,
+    oscid: s,
+    name: '',
+    time: new Date().getTime()
+  };
+
+  userData[s] = ud;
+
+  socket.emit('connected', s); // tell user its id
+  // socket.broadcast.emit('userdata', userData[s])
+
+  socket.on('disconnect', function() {
+    userData[s] = 0;
+    slots[s] = 0;
+    console.log("disconnecting ", s);
+    socket.emit('disconnected'); // disconnect user oscid from osc
+    // socket.broadcast.emit('userdata', userData);
+    // socket.broadcast.emit('users', userData.length);
   });
-  /*
-   *
-   *  get-type ms:
-   *  - 'users' returns a list of all users
-   *  - 'chats' returns a list of all chats of the:
-   *   -- no arguments: current user 
-   *   -- 'user1': the specified user
-   *   -- 'all': all the chats that have ever occured
-   *
-   */
+
+  socket.on('name',function(x) {
+    userData[s].name = x;
+    socket.broadcast.emit('notify', x + " joined.")
+  });
+  
   socket.on('userdata', function() {
-    // send user data
+    // send user data to requester
     socket.emit('userdata', userData);
   })
-  socket.on('chats', function() {
-    var m, x = arguments[1];
-    switch (x) {
-      case undefined:
-        if (u.data.hasOwnProperty('chat')) {
-          m = u.data.chat;
-        } else {
-          m = "You have not chatted.";
-        }
-        break;
-      case "all":
-        for (user in userData) {
-          if (user.data.hasOwnProperty('chat')) {
-            m.push(user.data.chat);
-          }
-        }
-        if (!m) m = "Noone said a word.";
-        break;
-      default:      
-        for (user in userData) {
-          if (!user.data.name.localeCompare(x) && 
-                user.data.hasOwnProperty('chat')) {
-            m=user.data.chat;
-          }
-        }
-        if (!m) m = x + " has not been very talkative... No chats found.";
-    }
-    socket.emit('chat', m);
+
+  socket.on('chat', function(data) {
+    socket.broadcast.emit('chat',data); 
   });
-  /*
-   *
-   *  'chat', 'event', and 'control' ms:
-   *  - broadcast ms to all clients with this structure
-   *    - head (string)
-   *    - value (array of values)
-   *    - time (msec since Jan 1,1970)
-   *  - update the userData dictionary with same structure
-   *  
-   *  see updateDict() routine.
-   *
-   */
-  socket.on('chat', function(x) {
-    var   usrData = u.data,
-          prop = 'chat',
-          values = x;
-    updateDict(socket, usrData, prop, getUsername(u), values, 1);
-  });
+  
   socket.on('event', function(data) {
-    updateDict(socket, u.data, "event", data.header, data.values);
-  });
-  socket.on('control', function(data) {
-    updateDict(socket, u.data, 'control', data.header, data.values);
-  });
-  /*
-   *
-   *  'dump' message : gets all server-side data
-   *
-   */
-  socket.on('dump', function() {
-    // wipes out the server-side storage of user data
-    var m = 'All user data dumped to ' + getUsername(u);
-    broadcast(socket,'users',m);
-    socket.emit('dump',userData);
-  });
-  /*
-   *
-   *  'clear' message : removes all server-side data
-   *
-   */
-  socket.on('clear', function() {
-    // wipes out the server-side storage of user data
-    var m = 'All user data cleared by ' + getUsername(u);
-    broadcast(socket,'users',m);
-    userData=[];
-  });
-  /*
-   *
-   *  'verbose' message : verbosity level for console posting
-   *  'store' message : flag for storing score data 
-   *
-   */
-  socket.on('verbose', function(x) {
-    verbose = x;
-  });
-  // socket.on('store', function(x) {
-  //   store = x;
-  // });
-  socket.on('mode', function(x) {
-    mode = x;
-  });
-  /*
-  * turn socket on or off from web client
-  *
-  */
-  socket.on('onoff', function(x) {
-    socket.broadcast.emit('onoff',ui,x); 
+    const newStuff = {
+      head: data.header,
+      value: data.values,
+      time: new Date().getTime(),
+      id: s
+    }
+    // broadcasts the event to all clients
+    socket.broadcast.emit('event',newStuff); 
   });
 
+  socket.on('onoff', function(x) {
+    socket.broadcast.emit('onoff',s,x); 
+  });
+  
 });
-/*
- *
- *
- *  Start listening
- *
- *
- */
+
 server.listen(PORT, () => console.log(`Listening on ${ PORT }`));

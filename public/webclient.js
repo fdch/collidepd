@@ -1,7 +1,27 @@
-var canvas, socket, connected=0;
+const userAgent = window.navigator.userAgent;
+const MAXCHATS = 10;
+var deviceIsAndroid;
+var canvas, socket, status;
 var x, y, z, print=1;
-var deviceIsAndroid, deviceShouldSelfCalibrate = 0;
-var moving = false; // is user moving
+var i, a;
+var sx,sy,angle,radius,click;
+var playerTitle = document.getElementById('userid');
+var statusTitle = document.getElementById('status');
+var messages = document.getElementById('messages');
+var chatbox = document.getElementById('chatbox');
+var chat = document.getElementById('chat');
+
+// using motion or mouse
+var usingMotion = false; 
+var usingMouse = false; 
+var play = false;
+
+let motion = {
+  turned: 0,
+  moved: 0,
+  shaken: 0
+};
+
 var accelRange = {
   rawX: 0.0, // raw value as reported by device motion
   loX: -10.0, // both axes will probably have same ranges, but you never know ..
@@ -21,17 +41,16 @@ var accelRange = {
   scaleZ: 20.0,
   tempZ: 0.0,
   
-  shouldReset: true // if (ToneMotion.deviceShouldSelfCalibrate), must reset thresholds once first
 }
 
 
 // self-calibrating device will call this often at first, then only with extreme motion
 function updateAccelRange() {
-  accelRange.scaleX = accelRange.hiX - accelRange.loX; // find full range of raw values
+  // find full range of raw values
+  accelRange.scaleX = accelRange.hiX - accelRange.loX; 
   accelRange.scaleY = accelRange.hiY - accelRange.loY;
+  accelRange.scaleZ = accelRange.hiZ - accelRange.loZ;
 }
-
-const userAgent = window.navigator.userAgent;
 
 if (userAgent.match(/Android/i)) {
   deviceIsAndroid = true;
@@ -52,45 +71,8 @@ function handleMotionEvent(event) {
     accelRange.rawY = event.accelerationIncludingGravity.y;
     accelRange.rawZ = event.accelerationIncludingGravity.z;
   }
-  // calibrate range of values for clamp (only if device is set to self-calibrate)
-  if (deviceShouldSelfCalibrate) {
-    if (accelRange.shouldReset) { // only true initially
-      accelRange.loX = Number.POSITIVE_INFINITY; // anything will be less than this
-      accelRange.hiX = Number.NEGATIVE_INFINITY; // anything will be greater than this
-      accelRange.loY = Number.POSITIVE_INFINITY;
-      accelRange.hiY = Number.NEGATIVE_INFINITY;
-      accelRange.loZ = Number.POSITIVE_INFINITY;
-      accelRange.hiZ = Number.NEGATIVE_INFINITY;
-      accelRange.shouldReset = false; // only reset once
-    }
-    if (accelRange.rawX < accelRange.loX) { // new trough
-      accelRange.loX = accelRange.rawX;
-      updateAccelRange();
-    }
-    else if (accelRange.rawX > accelRange.hiX) { // new peak
-      accelRange.hiX = accelRange.rawX;
-      updateAccelRange();
-    }
-    if (accelRange.rawY < accelRange.loY) {
-      accelRange.loY = accelRange.rawY;
-      updateAccelRange();
-    }
-    else if (accelRange.rawY > accelRange.hiY) {
-      accelRange.hiY = accelRange.rawY;
-      updateAccelRange();
-    }
-    if (accelRange.rawZ < accelRange.loZ) {
-      accelRange.loZ = accelRange.rawZ;
-      updateAccelRange();
-    }
-    else if (accelRange.rawZ > accelRange.hiZ) {
-      accelRange.hiZ = accelRange.rawZ;
-      updateAccelRange();
-    }
-  }
-  // clamp: if device does not self-calibrate, default to iOS range (typically -10 to 10)
+  // clamp to default to iOS range (typically -10 to 10)
   if (accelRange.rawX < accelRange.loX) { 
-  // thresholds are immutable if ToneMotion.deviceShouldSelfCalibrate == false
     accelRange.tempX = accelRange.loX;
   }
   else if (accelRange.rawX > accelRange.hiX) {
@@ -99,7 +81,6 @@ function handleMotionEvent(event) {
   else {
     accelRange.tempX = accelRange.rawX;
   }
-
 
   if (accelRange.rawY < accelRange.loY) {
     accelRange.tempY = accelRange.loY;
@@ -110,7 +91,6 @@ function handleMotionEvent(event) {
   else {
     accelRange.tempY = accelRange.rawY;
   }
-
 
   if (accelRange.rawZ < accelRange.loZ) {
     accelRange.tempZ = accelRange.loZ;
@@ -127,143 +107,78 @@ function handleMotionEvent(event) {
   y  = (accelRange.tempY - accelRange.loY) / accelRange.scaleY;
   z  = (accelRange.tempZ - accelRange.loZ) / accelRange.scaleZ;
 }
-/*
-** TEST IF DEVICE REPORTS MOTION. If not, XY-pad will be added by interface.
-*/
-// If motion data doesn't change, either the device doesn't report motion or it's perfectly level
-var motionCheckIntervId; // interval ID for checking motion detection
-var motionCheckDur = 3; // number of seconds before concluding there is no motion detection
-var motionCheckInterval = 500; // number of milliseconds between checks
-var motionFailCount = (motionCheckDur*1000)/motionCheckInterval;
-// Set sensitivity below. Low sensitivity will say device isn't reporting motion if user is holding it fairly flat
-var motionCheckSensitivity = 0.01 // motion beyond this threshold shows device is moving
-var loThreshold = 0.5 - motionCheckSensitivity; // 0.5 is perfectly level
-var hiThreshold = 0.5 + motionCheckSensitivity;
-
-
-function beginMotionDetection() {
-  motionCheckIntervId = setInterval(testForMotion, motionCheckInterval);
-}
-
-
-// closure keeps counter of failed attempts at polling device motion
-var testForMotion = (function() {
-  var counter = 1; // counter incremented *after* test
-  return function() {
-    if ( (x > loThreshold && x < hiThreshold) && (y > loThreshold & y < hiThreshold) && (z > loThreshold & z < hiThreshold)) {
-      // no motion detected. check if motionFailCount is exceeded and increment counter.
-      if (print) { console.log("No device motion detected. motionFailCount: " + counter); }
-      if (counter > motionFailCount || status === "deviceDoesNotReportMotion") {
-        // Either the device isn't moving or it will not report motion
-        // iOS 12.2 requires permission for motion access but does not support permission API so user has to set manually
-        // This scenario is pretty awkward because user has to go to settings and change them, then MUST reload page. This only happens on iOS devices from 12.2 up to before 13
-        // This also happens on Chrome on laptop because it claims to report device motion but does not actually do it.
-        window.alert("Your device is not reporting motion. You may either be on a desktop computer, or this may be a result of your mobile browser settings. If you're on an iPhone, go to Settings > Safari > Motion & Orientation Access and make sure this setting is on. Reload the page to try again, or continue to launch the desktop version.");
-
-        status = "deviceDoesNotReportMotion";
-        window.removeEventListener("devicemotion", handleMotionEvent, true); // stops listening for motion
-        moving = false;
-        if ( socket.connected ) socket.emit('onoff', 0);
-
-        clearInterval(motionCheckIntervId);
-      }
-      return counter++;
-    }
-    else {
-      status = "deviceDoesReportMotion";
-      counter = 0; // motion detected. reset counter and use in future if letting user test again
-      clearInterval(motionCheckIntervId); // stops testing for motion handling
-      return counter;
-    }
-  };
-}());
-
 
 function startController() {
 
-  // socket.emit('chat', {header:"hello", values:"world"});
-  // testing iOS 13 motion permission
-  // Guard against reference erros by checking that DeviceMotionEvent is defined
-  if (typeof DeviceMotionEvent !== 'undefined' &&
-  typeof DeviceMotionEvent.requestPermission === 'function') {
-    // Device requests motion permission (e.g., iOS 13+)
-    // delayPlayingUntilPermission = true;
+  // iOS 13 motion permission
+  if (typeof DeviceMotionEvent.requestPermission === 'function') {
     DeviceMotionEvent.requestPermission()
     .then(permissionState => {
       if (permissionState === 'granted') {
         window.addEventListener("devicemotion", handleMotionEvent, true);
-        moving = true;
-        if ( socket.connected ) socket.emit('onoff', 1);
-      } else {
-        // user has not give permission for motion. Pretend device is laptop
-        status = "deviceDoesNotReportMotion";
-      }
+        // window.alert("Using motion.")
+        usingMotion = true; // use motion
+        usingMouse = false; // use mouse
+      
+        // send onoff message to server
+        if ( socket.connected ) {
+          socket.emit('onoff', 1);
+        }
 
+        play = true;
+
+
+      } else {
+        // window.alert(permissionState);
+        usingMotion = false;
+        usingMouse = true; // use mouse
+
+        
+
+        // send onoff message to server
+        if ( socket.connected ) {
+          socket.emit('onoff', 1);
+        }
+
+        play = true;
+
+      }
     })
     .catch(console.error);
   } else {
-    // handle non iOS 13+ devices, which could still report motion
-    console.log('Not an iOS 13+ device');
-    if ('DeviceMotionEvent' in window) {
-      console.log('Device claims DeviceMotionEvent in window');
-      window.addEventListener("devicemotion", handleMotionEvent, true);
-      // But wait! My laptop sometimes says it reports motion but doesn't. Check for that case below.
-      beginMotionDetection();
-      moving = true;
-      if ( socket.connected ) socket.emit('onoff', 1);
+    
+    // beginMotionDetection();
+
+    // window.alert("Using Mouse");
+    usingMotion = false;
+    usingMouse = true; // use mouse
+
+    // send onoff message to server
+    if ( socket.connected ) {
+      socket.emit('onoff', 1);
     }
-    else {
-      status = "deviceDoesNotReportMotion";
-    }
+
+    play = true;
   }
+
+
 }
+
 function stopController() {
-  window.removeEventListener("devicemotion", handleMotionEvent, true); // stops listening for motion
-  moving = false;
-}
 
-function startSocket() {
-  // establishes a socket.io connection
-  socket = io({
-    transports: ['websocket'],
-    autoConnect: true
-  });
-  var checkSocket = setInterval(function() {
-    if (socket.connected) {
-      connected = 1;
-    } 
-    else if (socket.disconnected) {
-      connected = 0;
-    } else {
-      connected = -1;
-    }}, 1000);
-}
-
-function stopSocket() {
-  // establishes a socket.io connection
-  if (socket.connected) {
-    socket.close();
+  // stops listening for motion
+  if (usingMotion) {
+    window.removeEventListener("devicemotion", handleMotionEvent, true);
+    usingMotion = false;
   }
-}
-var playerTitle = document.getElementById('userid');
-var statusTitle = document.getElementById('status');
 
-if (connected==1) {
-  socket.on('connected', function(uid) {
-      playerTitle.innerHTML = uid.toString();
-      statusTitle.innerHTML = 'connected'
-  });
-  socket.on('disconnected', function(uid) {
-      playerTitle.innerHTML = -1;
-      statusTitle.innerHTML = 'disconnected'
-  });
-}
+  if ( socket.connected ) {
+    socket.emit('onoff', 0);
+  }
 
-let motion = {
-  turned: 0,
-  moved: 0,
-  shaken: 0
-};
+  play = false;
+
+}
 
 function deviceMoved() {
   motion.moved = motion.moved + 5;
@@ -284,40 +199,6 @@ function deviceShaken() {
     motion.shaken = 0;
   }
 }
-function setup() {
-  canvas = createCanvas(windowWidth, windowHeight);
-  frameRate(30);
-}
-
-function draw() {
-  
-  if (connected==1) {
-  
-  if (status == "deviceDoesNotReportMotion") {
-    x = map(mouseX, 0, width, 1, 0);
-    y = map(mouseY, 0, height, 1, 0);
-    z = map(mouseY+mouseX, 0, height, 1, 0);
-  }
-  col = x * 255;
-  num = y * 14;
-
-  if (moving) {
-      socket.emit('event', {header:'/xyz',values:[x,y,z]});
-      socket.emit('event', {header:'/act',values:
-        [
-        motion.turned,
-        motion.shaken,
-        motion.moved
-        ]});
-
-    hexagon(col,num,i);
-    }
-  }
-
-}
-
-var i, a;
-var sx,sy,angle,radius,click;
 
 function hexagon(col,num,i) {
   i = frameCount * 0.1;
@@ -326,8 +207,12 @@ function hexagon(col,num,i) {
   angle = TWO_PI / num;
 
   if (radius < 0) {
-   radius = 0;
-   noLoop();
+   //reset radius
+   clear();
+   radius = height/2;
+
+   // radius = 0;
+   // noLoop();
   } else { 
    radius = height/2 - i;
   }
@@ -342,4 +227,95 @@ function hexagon(col,num,i) {
   }
 
  endShape(CLOSE);
+}
+
+function addChat(e) {
+  if (messages.firstChild) 
+        messages.removeChild(messages.firstChild);
+  let li = document.createElement('li');
+  let liapp = messages.appendChild(li);
+  liapp.innerHTML = e;
+}
+function setup() {
+
+  canvas = createCanvas(windowWidth, windowHeight);
+
+  frameRate(30);
+
+  socket = io({
+
+    transports: ['websocket'],
+
+    autoConnect: true
+
+  });
+
+  socket.on('connected', function(s) {
+      playerTitle.innerHTML = s.toString();
+      statusTitle.innerHTML = 'connected'
+  });
+  
+  socket.on('disconnected', function() {
+      playerTitle.innerHTML = -1;
+      statusTitle.innerHTML = 'disconnected'
+  });
+
+  chatbox.addEventListener("submit", function(evt) {
+    evt.preventDefault();
+    if(socket.connected) {
+      socket.emit('chat', chat.value);
+      addChat(chat.value);
+      chat.value = '';
+    }
+  });
+
+
+  for (i=0;i<MAXCHATS;i++) {
+    let li = document.createElement('li');
+    let liapp = messages.appendChild(li);
+    liapp.innerHTML = '.';
+  }
+
+  socket.on('chat', function(e) {
+      addChat(e);
+  });
+
+}
+
+function draw() {
+  if (socket.connected) {
+    if (play) {
+     
+      // background('rgba(0,255,0, 0.11)');
+     
+      if (usingMouse) {
+        x = map(mouseX, 0, width, 1, 0);
+        y = map(mouseY, 0, height, 1, 0);
+        z = map(mouseY+mouseX, 0, height, 1, 0);
+        // console.log(x,y,z);
+      }
+
+
+
+      socket.emit('event', {header:'/xyz',values:[x,y,z]});
+      
+      if (usingMotion) {
+        socket.emit('event', {header:'/act',values:
+          [
+          motion.turned,
+          motion.shaken,
+          motion.moved
+          ]});
+      }
+      
+      col = x * 255;
+      num = y * 14;
+
+      hexagon(col,num,i);
+    } 
+    else { // no play
+    
+    background(255);
+  }
+  }
 }

@@ -41,85 +41,41 @@
 	
 	<script src="/socket.io/socket.io.js"></script>
     <script src="/jquery-1.11.1.js"></script>
-
-    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script> -->
-	
-	<!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> -->
-    
-    <!-- <script src="/gyronorm.complete.min.js"></script> -->
 	<script language="javascript" type="text/javascript" src="p5.min.js"></script>
 	<script languate=javascript type="text/javascript" src="draw.js"></script>
 	<link rel="stylesheet" type="text/css" href="/style.css">
-	<!-- Global site tag (gtag.js) - Google Analytics -->
-<!-- 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-151917938-1"></script>
-	
-	<script>
-	  window.dataLayer = window.dataLayer || [];
-	  function gtag(){dataLayer.push(arguments);}
-	  gtag('js', new Date());
-	  gtag('config', 'UA-151917938-1');
-	</script> -->
+
 </head>
 
 <body>
 	<header id="menuheader">
 	<div id="imgdiv"></div>
 		<h1 class="headtitle">CollidePD</h1>
-		<h2>a websocket server for live performance</h2>
-		<h4>Status: <span id="status">disconnected</span></h4>
-		<h4>Player: <span id="userid">-1</span></h4>
+		<h2>A websocket server for live performance</h2>
+		<h4>Status: <span id="status"></span></h4>
+		<h4>Player: <span id="userid"></span></h4>
 	<nav id="navtag" class="headtitle"></nav>
 	</header>
 	<main>
 		<div id="controls">
-			<button id="startSocket" onclick="startSocket();">Connect</button>
-			<button id="stopSocket" onclick="stopSocket();">Disconnect</button>
-			<button id="start" onclick="startController();">Start Controller</button>
-			<button id="stop" onclick="stopController();">Stop Controller</button>
+			<button id="start" onclick="startController();">Start</button>
+			<button id="stop" onclick="stopController();">Stop</button>
+			<div id='bodybox'>
+				<div id='chatborder'>
+				<ul id="messages">
+					<li>chat here</li>
+				</ul>
+				<form id='chatbox'>
+					<fieldset class='chatlog'>
+						<input type='text' id='chat' name='chat'/>
+					</fieldset>
+	      			<input type="submit" value="Send" />
+	      		</form>
+      		</div>
+			</div>
 		</div>
 		<div id="data">
-			
 		</div>
-
-
-		<!-- <div id="page">
-		  <div class="greater-container">
-		    <div class="item-0">
-		      <p>MOXSONIC AUDIENCE CONTROL INTERFACE</p>
-		    </div>
-		    <div class="rounded">
-		      <div class="speed-title tray">
-		        Change the speed of players' cannon
-		      </div>
-		      <div class="inc-buttons tray">
-		        <div> <button id="inc-button1" onclick="return false">Increase P1</button></div>
-		        <div> <button id="inc-button2" onclick="return false">Increase P2</button></div>
-		        <div> <button id="inc-button3" onclick="return false">Increase P3</button></div>
-		        <div> <button id="inc-button4" onclick="return false">Increase P4</button></div>
-		      </div>
-		      <div class="dec-buttons tray">
-		        <div> <button id="dec-button1" onclick="return false">Decrease P1</button></div>
-		        <div> <button id="dec-button2" onclick="return false">Decrease P2</button></div>
-		        <div> <button id="dec-button3" onclick="return false">Decrease P3</button></div>
-		        <div> <button id="dec-button4" onclick="return false">Decrease P4</button></div>
-		      </div>
-		    </div>
-		    <div class="bottom-buttons rounded">
-		      <div class="global-title tray">
-		        Global Factors
-		      </div>
-		      <div class="spawnbutton tray">
-		        <div> <button id="collectible-button" onclick="return false">Increase Likelihood of Collectible</button></div>
-		      </div>
-		      <div class="tempo-buttons tray">
-		        <div> <button id="dec-tempo" onclick="return false">Decrease Tempo</button></div>
-		      </div>
-		      <div class="tempo-buttons tray">
-		          <div> <button id="inc-tempo" onclick="return false">Increase Tempo</button></div>
-		      </div>
-		    </div>
-		  </div>
-		</div> -->
 	</main>
 	<footer></footer> 
 </body>
