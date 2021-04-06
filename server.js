@@ -164,7 +164,8 @@ io.sockets.on('connection', function(socket) {
   userData[s] = ud;
 
   socket.emit('connected', s); // tell user its id
-  // socket.broadcast.emit('userdata', userData[s])
+  let players = slots.filter(x => x==1).length;
+  socket.broadcast.emit('users', players + 1)
 
   socket.on('disconnect', function() {
     userData[s] = 0;
@@ -172,7 +173,8 @@ io.sockets.on('connection', function(socket) {
     console.log("disconnecting ", s);
     socket.emit('disconnected'); // disconnect user oscid from osc
     // socket.broadcast.emit('userdata', userData);
-    // socket.broadcast.emit('users', userData.length);
+    let players = slots.filter(x => x==1).length;
+    socket.broadcast.emit('users', players + 1)
   });
 
   socket.on('name',function(x) {

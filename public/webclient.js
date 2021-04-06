@@ -19,6 +19,7 @@ var sx,sy,angle,radius,click;
 var startButton = document.getElementById('start');
 var stopButton = document.getElementById('stop');
 var playerTitle = document.getElementById('userid');
+var playersTitle = document.getElementById('players');
 var statusTitle = document.getElementById('status');
 var messages = document.getElementById('messages');
 var chatbox = document.getElementById('chatbox');
@@ -235,6 +236,11 @@ function setup() {
       playerTitle.innerHTML = -1;
       statusTitle.innerHTML = 'disconnected'
   });
+
+  socket.on('users', function(s) {
+      playersTitle.innerHTML = s.toString();
+  });
+  
 
   chatbox.addEventListener("submit", function(evt) {
     evt.preventDefault();
