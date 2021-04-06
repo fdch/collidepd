@@ -158,23 +158,23 @@ stopButton.onclick = function ()  {
 
 }
 
-function deviceMoved() {
-  Motion.m += 5;
-  if (Motion.m > 255) {
-    Motion.m = 0;
-  }
-}
 function deviceTurned() {
   if (Motion.t == 0) {
-    Motion.t = 255;
-  } else if (Motion.t == 255) {
+    Motion.t = 127;
+  } else if (Motion.t == 127) {
     Motion.t = 0;
   }
 }
 function deviceShaken() {
-  Motion.s += 5;
-  if (Motion.s > 255) {
+  Motion.s += 1;
+  if (Motion.s > 128) {
     Motion.s = 0;
+  }
+}
+function deviceMoved() {
+  Motion.m += 1;
+  if (Motion.m > 128) {
+    Motion.m = 0;
   }
 }
 
