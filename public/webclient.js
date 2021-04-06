@@ -1,10 +1,22 @@
+var Motion = {
+  x : 0.5, 
+  y : 0.5,
+  z : 0.5,
+  t : 0.0,
+  m : 0.0,
+  s : 0.0,
+  status : 'undefined'
+}
+
 const userAgent = window.navigator.userAgent;
 const MAXCHATS = 10;
 var deviceIsAndroid;
 var canvas, socket, status;
-var x, y, z, print=1;
+
 var i, a;
 var sx,sy,angle,radius,click;
+var startButton = document.getElementById('start');
+var stopButton = document.getElementById('stop');
 var playerTitle = document.getElementById('userid');
 var statusTitle = document.getElementById('status');
 var messages = document.getElementById('messages');
@@ -16,11 +28,6 @@ var usingMotion = false;
 var usingMouse = false; 
 var play = false;
 
-let motion = {
-  turned: 0,
-  moved: 0,
-  shaken: 0
-};
 
 var accelRange = {
   rawX: 0.0, // raw value as reported by device motion
@@ -59,17 +66,17 @@ else {
   deviceIsAndroid = false;
 }
 
-function handleMotionEvent(event) {
+function motionEvent(e) {
   // get the raw accelerometer values (invert if Android)
   if (deviceIsAndroid) {
-    accelRange.rawX = -(event.accelerationIncludingGravity.x);
-    accelRange.rawY = -(event.accelerationIncludingGravity.y);
-    accelRange.rawZ = -(event.accelerationIncludingGravity.z);
+    accelRange.rawX = -(e.accelerationIncludingGravity.x);
+    accelRange.rawY = -(e.accelerationIncludingGravity.y);
+    accelRange.rawZ = -(e.accelerationIncludingGravity.z);
   }
   else {
-    accelRange.rawX = event.accelerationIncludingGravity.x;
-    accelRange.rawY = event.accelerationIncludingGravity.y;
-    accelRange.rawZ = event.accelerationIncludingGravity.z;
+    accelRange.rawX = e.accelerationIncludingGravity.x;
+    accelRange.rawY = e.accelerationIncludingGravity.y;
+    accelRange.rawZ = e.accelerationIncludingGravity.z;
   }
   // clamp to default to iOS range (typically -10 to 10)
   if (accelRange.rawX < accelRange.loX) { 
@@ -103,73 +110,36 @@ function handleMotionEvent(event) {
   }
 
   // normalize to 0.0 to 1.0
-  x  = (accelRange.tempX - accelRange.loX) / accelRange.scaleX;
-  y  = (accelRange.tempY - accelRange.loY) / accelRange.scaleY;
-  z  = (accelRange.tempZ - accelRange.loZ) / accelRange.scaleZ;
+  Motion.x  = (accelRange.tempX - accelRange.loX) / accelRange.scaleX;
+  Motion.y  = (accelRange.tempY - accelRange.loY) / accelRange.scaleY;
+  Motion.z  = (accelRange.tempZ - accelRange.loZ) / accelRange.scaleZ;
 }
 
-function startController() {
-
-  // iOS 13 motion permission
+startButton.onclick = function () {
   if (typeof DeviceMotionEvent.requestPermission === 'function') {
-    DeviceMotionEvent.requestPermission()
-    .then(permissionState => {
-      if (permissionState === 'granted') {
-        window.addEventListener("devicemotion", handleMotionEvent, true);
-        // window.alert("Using motion.")
-        usingMotion = true; // use motion
-        usingMouse = false; // use mouse
-      
-        // send onoff message to server
-        if ( socket.connected ) {
-          socket.emit('onoff', 1);
-        }
-
-        play = true;
-
-
-      } else {
-        // window.alert(permissionState);
-        usingMotion = false;
-        usingMouse = true; // use mouse
-
-        
-
-        // send onoff message to server
-        if ( socket.connected ) {
-          socket.emit('onoff', 1);
-        }
-
-        play = true;
-
-      }
-    })
-    .catch(console.error);
-  } else {
-    
-    // beginMotionDetection();
-
-    // window.alert("Using Mouse");
-    usingMotion = false;
-    usingMouse = true; // use mouse
-
-    // send onoff message to server
-    if ( socket.connected ) {
-      socket.emit('onoff', 1);
+  // iOS 13+
+  DeviceMotionEvent.requestPermission()
+  .then(response => {
+    if (response == 'granted') {
+      Motion.status = 'device';
+      window.addEventListener('devicemotion', motionEvent);
     }
-
-    play = true;
+    statusTitle.innerHTML = response;
+  })
+  .catch(console.error)
+  } else {
+    // non iOS 13+
+    Motion.status = 'mouse';
   }
-
-
 }
 
-function stopController() {
+
+stopButton.onclick = function ()  {
 
   // stops listening for motion
-  if (usingMotion) {
-    window.removeEventListener("devicemotion", handleMotionEvent, true);
-    usingMotion = false;
+  if (Motion.status === 'device') {
+    window.removeEventListener("devicemotion", motionEvent);
+    Mostion.status = 'undefined';
   }
 
   if ( socket.connected ) {
@@ -181,22 +151,22 @@ function stopController() {
 }
 
 function deviceMoved() {
-  motion.moved = motion.moved + 5;
-  if (motion.moved > 255) {
-    motion.moved = 0;
+  Motion.m += 5;
+  if (Motion.m > 255) {
+    Motion.m = 0;
   }
 }
 function deviceTurned() {
-  if (motion.turned === 0) {
-    motion.turned = 255;
-  } else if (motion.turned === 255) {
-    motion.turned = 0;
+  if (Motion.t == 0) {
+    Motion.t = 255;
+  } else if (Motion.t == 255) {
+    Motion.t = 0;
   }
 }
 function deviceShaken() {
-  motion.shaken = motion.shaken + 5;
-  if (motion.shaken > 255) {
-    motion.shaken = 0;
+  Motion.s += 5;
+  if (Motion.s > 255) {
+    Motion.s = 0;
   }
 }
 
@@ -236,6 +206,7 @@ function addChat(e) {
   let liapp = messages.appendChild(li);
   liapp.innerHTML = e;
 }
+
 function setup() {
 
   canvas = createCanvas(windowWidth, windowHeight);
@@ -243,11 +214,8 @@ function setup() {
   frameRate(30);
 
   socket = io({
-
     transports: ['websocket'],
-
     autoConnect: true
-
   });
 
   socket.on('connected', function(s) {
@@ -284,34 +252,33 @@ function setup() {
 
 function draw() {
   if (socket.connected) {
-    if (play) {
+    if (Motion.status !== 'undefined') {
      
       // background('rgba(0,255,0, 0.11)');
      
-      if (usingMouse) {
-        x = map(mouseX, 0, width, 1, 0);
-        y = map(mouseY, 0, height, 1, 0);
-        z = map(mouseY+mouseX, 0, height, 1, 0);
+      if (Motion.status === 'mouse') {
+        Motion.x = map(mouseX, 0, width, 1, 0);
+        Motion.y = map(mouseY, 0, height, 1, 0);
+        Motion.z = map(mouseY+mouseX, 0, height, 1, 0);
         // console.log(x,y,z);
       }
 
-
-
-      socket.emit('event', {header:'/xyz',values:[x,y,z]});
+      socket.emit('event', {
+        header:'/xyz',
+        values: [ Motion.x, Motion.y, Motion.z ]
+      });
       
-      if (usingMotion) {
-        socket.emit('event', {header:'/act',values:
-          [
-          motion.turned,
-          motion.shaken,
-          motion.moved
-          ]});
+      if (Motion.status === 'device') {
+        socket.emit('event', {
+          header:'/act',
+          values: [ Motion.t, Motion.s, Motion.m]
+        });
       }
       
-      col = x * 255;
-      num = y * 14;
+      col = Motion.x * 255;
+      num = Motion.y * 14;
 
-      hexagon(col,num,i);
+      hexagon(col, num, i);
     } 
     else { // no play
     
