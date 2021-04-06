@@ -5,7 +5,8 @@ var Motion = {
   t : 0.0,
   m : 0.0,
   s : 0.0,
-  status : 'undefined'
+  running : false,
+  device : 'undefined'
 }
 
 const userAgent = window.navigator.userAgent;
@@ -121,12 +122,13 @@ startButton.onclick = function () {
   DeviceMotionEvent.requestPermission()
   .then(response => {
     if (response == 'granted') {
-      Motion.status = 'device';
+      Motion.device = 'controller';
       window.addEventListener('devicemotion', motionEvent);
     }
     if ( socket.connected ) {
       socket.emit('onoff', 1);
     }
+    Motion.running = true;
   })
   .catch(console.error)
   } else {
@@ -134,22 +136,23 @@ startButton.onclick = function () {
     if ( socket.connected ) {
       socket.emit('onoff', 1);
     }
-    Motion.status = 'mouse';
+    Motion.device = 'mouse';
+    Motion.running = true;
   }
 }
 
 
 stopButton.onclick = function ()  {
+  
+  Motion.running = false;
 
   if ( socket.connected ) {
     socket.emit('onoff', 0);
   }
-
   // stops listening for motion
 
-  if (Motion.status === 'device') {
+  if (Motion.device === 'controller') {
     window.removeEventListener("devicemotion", motionEvent);
-    Mostion.status = 'undefined';
   }
 
 
@@ -254,40 +257,69 @@ function setup() {
   });
 
 }
+let k=0,t=0,m=0;
+function loadingDots(w,h) {
+  background(255);
+  translate(w/2,h/2);
+  noStroke();
+  fill(0);
+  ellipse(100*sin(radians(k)),0,20*cos(radians(m)),20*cos(radians(m)));
+  ellipse(100*sin(radians(k)+PI/3),0,20*cos(radians(m)+PI/3),20*cos(radians(m)+PI/3));
+  ellipse(100*sin(radians(k)+PI/6),0,20*cos(radians(m)+PI/6),20*cos(radians(m)+PI/6));
+  if(k<360) {
+    k+=4;
+    if(180<k) {
+      if(m<360) {
+        m+=8;
+      } else m = 0;
+    }
+  } else {
+    k=0;
+    m=0;
+  }
+}
 
 function draw() {
   if (socket.connected) {
-    if (Motion.status !== 'undefined') {
+    if (Motion.running) {
      
       // background('rgba(0,255,0, 0.11)');
      
-      if (Motion.status === 'mouse') {
+      if (Motion.device === 'mouse') {
         Motion.x = map(mouseX, 0, width, 1, 0);
         Motion.y = map(mouseY, 0, height, 1, 0);
         Motion.z = map(mouseY+mouseX, 0, height, 1, 0);
+        socket.emit('event', {
+          header:'/xyz',
+          values: [ Motion.x, Motion.y, Motion.z ]
+        });
         // console.log(x,y,z);
       }
 
-      socket.emit('event', {
-        header:'/xyz',
-        values: [ Motion.x, Motion.y, Motion.z ]
-      });
+
       
-      if (Motion.status === 'device') {
+      if (Motion.device === 'controller') {
+        socket.emit('event', {
+          header:'/xyz',
+          values: [ Motion.x, Motion.y, Motion.z ]
+        });
         socket.emit('event', {
           header:'/act',
           values: [ Motion.t, Motion.s, Motion.m]
         });
       }
       
+      // draw a hexagon
       col = Motion.x * 255;
       num = Motion.y * 14;
 
       hexagon(col, num, i);
     } 
-    else { // no play
-    
-    background(255);
-  }
+    else { // not playing
+    // background(255);
+     loadingDots(width, height);
+    }
+  } else { // socket disconnected
+
   }
 }
