@@ -124,11 +124,16 @@ startButton.onclick = function () {
       Motion.status = 'device';
       window.addEventListener('devicemotion', motionEvent);
     }
-    statusTitle.innerHTML = response;
+    if ( socket.connected ) {
+      socket.emit('onoff', 1);
+    }
   })
   .catch(console.error)
   } else {
     // non iOS 13+
+    if ( socket.connected ) {
+      socket.emit('onoff', 1);
+    }
     Motion.status = 'mouse';
   }
 }
@@ -136,17 +141,17 @@ startButton.onclick = function () {
 
 stopButton.onclick = function ()  {
 
+  if ( socket.connected ) {
+    socket.emit('onoff', 0);
+  }
+
   // stops listening for motion
+
   if (Motion.status === 'device') {
     window.removeEventListener("devicemotion", motionEvent);
     Mostion.status = 'undefined';
   }
 
-  if ( socket.connected ) {
-    socket.emit('onoff', 0);
-  }
-
-  play = false;
 
 }
 
