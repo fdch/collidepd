@@ -126,20 +126,21 @@ startButton.onclick = function () {
       Motion.device = 'controller';
       window.addEventListener('devicemotion', motionEvent);
     }
-    if ( socket.connected ) {
-      socket.emit('onoff', 1);
-    }
-    Motion.running = true;
   })
   .catch(console.error)
   } else {
     // non iOS 13+
-    if ( socket.connected ) {
-      socket.emit('onoff', 1);
+    if ('DeviceMotionEvent' in window) {
+      Motion.device = 'controller';
+      window.addEventListener('devicemotion', motionEvent); 
+    } else {
+      Motion.device = 'mouse';
     }
-    Motion.device = 'mouse';
-    Motion.running = true;
   }
+  if ( socket.connected ) {
+    socket.emit('onoff', 1);
+  }
+  Motion.running = true;
 }
 
 
