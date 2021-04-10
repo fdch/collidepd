@@ -1,0 +1,17 @@
+{
+  "socketURL": "/",
+  "dirPath": "",
+  "homePage": "/public/index.html",
+  "socketMessageEvent": "RTCMultiConnection-Message",
+  "socketCustomEvent": "RTCMultiConnection-Custom-Message",
+  "port": "5012",
+  "enableLogs": "false",
+  "autoRebootServerOnFailure": "false",
+  "isUseHTTPs": "true",
+  "sslKey": "./fake-keys/private.pem",
+  "sslCert": "./fake-keys/cert.pem",
+  "sslCabundle": "",
+  "enableAdmin": "true",
+  "adminUserName": "fdch",
+  "adminPassword": "fdch"
+}
