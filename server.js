@@ -148,7 +148,7 @@ function updateDict(socket,userData,prop,header,values,f) {
  */
 io.sockets.on('connection', function(socket) {
 
-  RTCMultiConnectionServer.addSocket(socket);
+  // RTCMultiConnectionServer.addSocket(socket);
 
   var u;
 
