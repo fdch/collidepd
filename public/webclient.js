@@ -53,6 +53,14 @@ var accelRange = {
 }
 
 
+// const gainNode = new Tone.Gain(0).toDestination();
+// const oscil = new Tone.Oscillator().connect(gainNode);
+// const signal = new Tone.Signal({
+//   value: frequency,
+//   units: "frequency"
+// }).connect(oscil.frequency);
+
+
 // self-calibrating device will call this often at first, then only with extreme motion
 function updateAccelRange() {
   // find full range of raw values
@@ -140,7 +148,11 @@ startButton.onclick = function () {
   if ( socket.connected ) {
     socket.emit('onoff', 1);
   }
+  Motion.device = 'mouse';
+
   Motion.running = true;
+  // Tone.start();
+  // oscil.start();
 }
 
 
@@ -157,7 +169,7 @@ stopButton.onclick = function ()  {
     window.removeEventListener("devicemotion", motionEvent);
   }
 
-
+  // oscil.stop();
 }
 
 function deviceTurned() {
@@ -220,6 +232,8 @@ function addChat(e) {
 function setup() {
 
   canvas = createCanvas(windowWidth, windowHeight);
+  // const synth = new Tone.Synth().toDestination();
+
 
   frameRate(30);
 
@@ -228,9 +242,10 @@ function setup() {
     autoConnect: true
   });
 
-  socket.on('connected', function(s) {
-      playerTitle.innerHTML = s.toString();
-      statusTitle.innerHTML = 'connected'
+  socket.on('connected', function(data) {
+      playerTitle.innerHTML = data[0].toString();
+      playersTitle.innerHTML= data[1].toString();
+      statusTitle.innerHTML = 'connected';
   });
   
   socket.on('disconnected', function() {
@@ -250,6 +265,7 @@ function setup() {
       addChat(chat.value);
       chat.value = '';
     }
+
   });
 
 
@@ -287,6 +303,7 @@ function loadingDots(w,h) {
 }
 
 function draw() {
+
   if (socket.connected) {
     if (Motion.running) {
      
@@ -300,6 +317,11 @@ function draw() {
           header:'/xyz',
           values: [ Motion.x, Motion.y, Motion.z ]
         });
+        // let frequency = Motion.x * 500 + 100;
+        
+
+        
+        // gainNode.gain.rampTo(Motion.y, 0.1);
         // console.log(x,y,z);
       }
 
@@ -314,6 +336,9 @@ function draw() {
           header:'/act',
           values: [ Motion.t, Motion.s, Motion.m]
         });
+        // signal.value = Motion.x * 500 + 100;
+        // gainNode.gain.rampTo(Motion.y, 0.1);
+
       }
       
       // draw a hexagon

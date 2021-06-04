@@ -39,11 +39,12 @@
 	<meta name="keywords"        content="websocket, network, performance, music, osc, socket.io">
 	<meta name="robots"          content="index,follow">
 	
-	<script src="/socket.io/socket.io.js"></script>
-    <script src="/jquery-1.11.1.js"></script>
+	<script src="socket.io/socket.io.js"></script>
+    <script src="jquery-1.11.1.js"></script>
 	<script language="javascript" type="text/javascript" src="p5.min.js"></script>
+	<!-- <script language="javascript" type="text/javascript" src="Tone.js"></script> -->
 	<script languate=javascript type="text/javascript" src="draw.js"></script>
-	<link rel="stylesheet" type="text/css" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
 
 </head>
 
@@ -53,7 +54,8 @@
 		<h1 class="headtitle">CollidePD</h1>
 		<h2>A websocket server for live performance</h2>
 		<h4>Status: <span id="status"></span></h4>
-		<h4>Player: <span id="userid"></span> of <span id="players">1</span></h4>
+		<h4>Player: <span id="userid"></span>
+		<h4>Total Players <span id="players">s</span></h4>
 	<nav id="navtag" class="headtitle"></nav>
 	</header>
 	<main>
@@ -81,6 +83,6 @@
 </body>
 
 <!-- load our stuff -->
-<script type="text/javascript" src="/webclient.js"></script>
+<script type="text/javascript" src="webclient.js"></script>
 
 </html>

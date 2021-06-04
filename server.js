@@ -6,14 +6,15 @@ const server = http.Server(app);
 const io = require('socket.io')(server);
 const PORT = process.env.PORT || 80;
 const MAXUSERS = 1002;
+
 // store everythin here for now:
 let verbose = 0, store = 0, mode = 1;
 let slots = new Array(MAXUSERS); // slots for the players
 let userData = new Array(MAXUSERS); // data for players
-// let userConf = new Array(MAXUSERS); // user ICE configuration
+
 userData.fill(0); // fill the array with zeros
 slots.fill(0);
-// userConf.fill('empty');
+
 /* 
  * 
  * HTTP routines
@@ -26,30 +27,30 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-function getKeys(obj) {
-  var x = [];
-  Object.keys(obj).forEach(function(key) {
-    x.push(key+":"+obj[key]);
-  });
-  return x;
-}
+// function getKeys(obj) {
+//   var x = [];
+//   Object.keys(obj).forEach(function(key) {
+//     x.push(key+":"+obj[key]);
+//   });
+//   return x;
+// }
 
-// request the ip
-app.get('/req', (req, res) => {
-  if (req.baseUrl) res.send("baseUrl: "+req.baseUrl);
-  if (req.hostname) res.send("hostname: "+req.hostname);
-  if (req.ip) res.send("ip: "+req.ip);
-  if (req.ips) res.send("ips: "+req.ips);
-  if (req.originalUrl) res.send("originalUrl: "+req.originalUrl);
-  if (req.path) res.send("path: "+req.path);
-  if (req.protocol) res.send("protocol: "+req.protocol);
-  if (req.secure) res.send("secure: "+req.secure);
-  if (req.hxr) res.send("xhr: "+req.xhr);
-  if (req.route) res.send("route: "+(getKeys(req.route)).join());
-  if (req.subdomains) res.send("subdomains: "+req.subdomains.join());
-  if (req.query) res.send("query: "+(getKeys(req.query)).join());
-  if (req.params) res.send("params: "+(getKeys(req.params)).join());
-});
+// // request the ip
+// app.get('/req', (req, res) => {
+//   if (req.baseUrl) res.send("baseUrl: "+req.baseUrl);
+//   if (req.hostname) res.send("hostname: "+req.hostname);
+//   if (req.ip) res.send("ip: "+req.ip);
+//   if (req.ips) res.send("ips: "+req.ips);
+//   if (req.originalUrl) res.send("originalUrl: "+req.originalUrl);
+//   if (req.path) res.send("path: "+req.path);
+//   if (req.protocol) res.send("protocol: "+req.protocol);
+//   if (req.secure) res.send("secure: "+req.secure);
+//   if (req.hxr) res.send("xhr: "+req.xhr);
+//   if (req.route) res.send("route: "+(getKeys(req.route)).join());
+//   if (req.subdomains) res.send("subdomains: "+req.subdomains.join());
+//   if (req.query) res.send("query: "+(getKeys(req.query)).join());
+//   if (req.params) res.send("params: "+(getKeys(req.params)).join());
+// });
 
 
 /* 
@@ -148,8 +149,6 @@ function updateDict(socket,userData,prop,header,values,f) {
  */
 io.sockets.on('connection', function(socket) {
 
-  // RTCMultiConnectionServer.addSocket(socket);
-
   var u;
 
   // look for an empty slot:
@@ -167,19 +166,22 @@ io.sockets.on('connection', function(socket) {
 
   userData[s] = ud;
 
-  socket.emit('connected', s); // tell user its id
+  // tell user its id and num of players
   let players = slots.filter(x => x==1).length;
-  socket.broadcast.emit('users', players + 1)
+  
+  socket.emit('connected', [s, players]); 
+  
+  socket.broadcast.emit('users', players)
 
   socket.on('disconnect', function() {
     userData[s] = 0;
     slots[s] = 0;
-    userConf[s] = 'empty';
+
     console.log("disconnecting ", s);
     socket.emit('disconnected'); // disconnect user oscid from osc
     // socket.broadcast.emit('userdata', userData);
     let players = slots.filter(x => x==1).length;
-    socket.broadcast.emit('users', players + 1)
+    socket.broadcast.emit('users', players)
   });
 
   socket.on('name',function(x) {
@@ -210,15 +212,6 @@ io.sockets.on('connection', function(socket) {
   socket.on('onoff', function(x) {
     socket.broadcast.emit('onoff',s,x); 
   });
-  
-  socket.on('offer', function(x) {
-    userConf[s] = x;
-    console.log(userConf[s]);
-  })
-
-  socket.on('get_ice', function() {
-    socket.emit('ice', userConf[s]);
-  })
 
 });
 
