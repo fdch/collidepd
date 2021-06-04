@@ -42,7 +42,7 @@
 	<script src="socket.io/socket.io.js"></script>
     <script src="jquery-1.11.1.js"></script>
 	<script language="javascript" type="text/javascript" src="p5.min.js"></script>
-	<!-- <script language="javascript" type="text/javascript" src="Tone.js"></script> -->
+	<script language="javascript" type="text/javascript" src="Tone.js"></script>
 	<script languate=javascript type="text/javascript" src="draw.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
 
@@ -76,6 +76,12 @@
       		</div>
 			</div>
 		</div>
+		<div id="control">
+		<input type="range" oninput="set_vol1(this.value)" min="-40" max="-10">
+		<output id="vol1"></output>
+		<input type="range" oninput="set_vol2(this.value)" min="-40" max="-10">
+		<output id="vol2"></output>
+		</div>
 		<div id="data">
 		</div>
 	</main>
@@ -84,5 +90,6 @@
 
 <!-- load our stuff -->
 <script type="text/javascript" src="webclient.js"></script>
+<script type="text/javascript" src="sintes.js"></script>
 
 </html>

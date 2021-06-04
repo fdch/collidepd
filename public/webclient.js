@@ -151,8 +151,9 @@ startButton.onclick = function () {
   Motion.device = 'mouse';
 
   Motion.running = true;
-  // Tone.start();
-  // oscil.start();
+  Tone.start();
+  startosc1();
+  startosc2();
 }
 
 
@@ -169,7 +170,8 @@ stopButton.onclick = function ()  {
     window.removeEventListener("devicemotion", motionEvent);
   }
 
-  // oscil.stop();
+  stoposc1();
+  stoposc2();
 }
 
 function deviceTurned() {
@@ -257,6 +259,16 @@ function setup() {
       playersTitle.innerHTML = s.toString();
   });
   
+  socket.on('sliders', (data) => {
+    // console.log(data.length);
+    for(var i=0;i<data.length;i++){
+      oscils[i].volume.rampTo(data[i],0.1);
+    }
+    // console.log(data);
+    // oscils[0].volume.value = val;
+    // set_vol1(data.value[0]);
+    // set_vol2(data.value[1]);
+  });
 
   chatbox.addEventListener("submit", function(evt) {
     evt.preventDefault();
@@ -267,7 +279,6 @@ function setup() {
     }
 
   });
-
 
   for (i=0;i<MAXCHATS;i++) {
     let li = document.createElement('li');
@@ -305,7 +316,12 @@ function loadingDots(w,h) {
 function draw() {
 
   if (socket.connected) {
+
+    
+
     if (Motion.running) {
+
+      socket.emit('poll');
      
       // background('rgba(0,255,0, 0.11)');
      

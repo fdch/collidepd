@@ -11,9 +11,11 @@ const MAXUSERS = 1002;
 let verbose = 0, store = 0, mode = 1;
 let slots = new Array(MAXUSERS); // slots for the players
 let userData = new Array(MAXUSERS); // data for players
+let sliders = new Array(2); // data for players
 
 userData.fill(0); // fill the array with zeros
 slots.fill(0);
+sliders.fill(0);
 
 /* 
  * 
@@ -212,6 +214,19 @@ io.sockets.on('connection', function(socket) {
   socket.on('onoff', function(x) {
     socket.broadcast.emit('onoff',s,x); 
   });
+
+  socket.on('slider1', function(x) {
+    sliders[0] = x;
+    // socket.broadcast.emit('onoff',s,x); 
+  });
+  socket.on('slider2', function(x) {
+    sliders[1] = x;
+    // socket.broadcast.emit('onoff',s,x); 
+  });
+  socket.on('poll', function() {
+    socket.emit('sliders',sliders); 
+  });
+
 
 });
 
