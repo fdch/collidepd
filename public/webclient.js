@@ -1,3 +1,5 @@
+var players = [];
+
 var Motion = {
   x : 0.5, 
   y : 0.5,
@@ -152,8 +154,45 @@ startButton.onclick = function () {
 
   Motion.running = true;
   Tone.start();
-  startosc1();
-  startosc2();
+  initPlayer(0);
+  // initPlayer(1);
+
+  // startosc1();
+  // startosc2();
+}
+
+function initPlayer(i) {
+
+  var player = new Player(-100,80);
+  var p;
+  if (i>=0) {
+    p = players[i];
+    p = player;
+  } else {
+    players.push(player);
+    p = players[players.length];
+  }
+
+  p.slider.on('change',function(v) {
+      p.osc.frequency.rampTo(v, 0.1);
+      socket.emit('slider'+(i+1),v);
+  });
+
+  p.dial.on('change',function(v) {
+      p.osc.volume.rampTo(v, 0.1);
+  });
+
+  p.toggle.on('change', function(v) {
+      if(v) {
+          p.osc.start();
+      } else {
+          p.osc.stop();
+      }
+  });
+}
+
+function deinitPlayer(i) {
+  players[i].destroyer();
 }
 
 
@@ -169,9 +208,9 @@ stopButton.onclick = function ()  {
   if (Motion.device === 'controller') {
     window.removeEventListener("devicemotion", motionEvent);
   }
-
-  stoposc1();
-  stoposc2();
+  deinitPlayer(0);
+  // stoposc1();
+  // stoposc2();
 }
 
 function deviceTurned() {
@@ -231,11 +270,14 @@ function addChat(e) {
   liapp.innerHTML = e;
 }
 
+
+
 function setup() {
 
   canvas = createCanvas(windowWidth, windowHeight);
   // const synth = new Tone.Synth().toDestination();
 
+  
 
   frameRate(30);
 
@@ -248,11 +290,12 @@ function setup() {
       playerTitle.innerHTML = data[0].toString();
       playersTitle.innerHTML= data[1].toString();
       statusTitle.innerHTML = 'connected';
+      
   });
   
   socket.on('disconnected', function() {
       playerTitle.innerHTML = -1;
-      statusTitle.innerHTML = 'disconnected'
+      statusTitle.innerHTML = 'disconnected';
   });
 
   socket.on('users', function(s) {
@@ -262,7 +305,11 @@ function setup() {
   socket.on('sliders', (data) => {
     // console.log(data.length);
     for(var i=0;i<data.length;i++){
-      oscils[i].volume.rampTo(data[i],0.1);
+      // players[i].slider.value = data[i];
+      // players[i].dial.value = data[i];
+      // players[i].toggle.value = data[i];
+      players[i].osc.volume.rampTo(data[i],0.1);
+      // oscils[i].volume.rampTo(data[i],0.1);
     }
     // console.log(data);
     // oscils[0].volume.value = val;
@@ -313,7 +360,16 @@ function loadingDots(w,h) {
   }
 }
 
+// if (players.length >= 1) {
+//   for (var player of players) {
+//     player.
+//   }
+// }
+
+
 function draw() {
+
+
 
   if (socket.connected) {
 
@@ -321,7 +377,7 @@ function draw() {
 
     if (Motion.running) {
 
-      socket.emit('poll');
+      if(players.length>=1) socket.emit('poll');
      
       // background('rgba(0,255,0, 0.11)');
      
