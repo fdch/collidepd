@@ -180,6 +180,7 @@ function initPlayer(i) {
 
   p.dial.on('change',function(v) {
       p.osc.volume.rampTo(v, 0.1);
+      p.synth.volume.rampTo(v, 0.1);
   });
 
   p.toggle.on('change', function(v) {
@@ -189,6 +190,43 @@ function initPlayer(i) {
           p.osc.stop();
       }
   });
+
+  //funciones
+  p.button.on('change',function(v) {
+      if(v) {
+          // synth.frequency.value = 440;
+          p.synth.triggerAttack("A2");
+      } else {
+          p.synth.triggerRelease();
+      };
+  });
+
+  p.fmtype.on('change',function(v) {
+      if(v) {
+          p.synth.modulation.type = "sine";
+      }
+      else {
+          p.synth.modulation.type = "square";
+      }
+  });
+
+  // modcontrol.on('change',function(v) {
+  //     synth.modulationIndex.rampTo(v, 0.1);
+  //   })
+
+  p.position.on('change',function(v) {
+      p.synth.frequency.rampTo(v.x, 0.1);
+      p.synth.modulationIndex.rampTo(v.y, 0.1);
+  });
+
+  p.tilt.on('change',function(v) {
+    let x  = Nexus.scale(v.x,0,1,0.01,20);
+    let y = Nexus.scale(v.y,0,1,80,5000);
+    p.synth.modulationIndex.rampTo(x, 0.1);
+    p.synth.frequency.rampTo(y, 0.1);
+    console.log(x, y, v.z);
+  });
+
 }
 
 function deinitPlayer(i) {

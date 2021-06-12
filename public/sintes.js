@@ -74,13 +74,24 @@ class Player {
         // this.y = y;
         this.vol = vol;
         this.freq = freq;
-        //  Slider
+
+
+        this.button = new Nexus.Add.Toggle(control,{
+          'size': [80,80],
+          'mode': 'aftertouch',
+          'state': false
+        });
+
+
+        this.fmtype = new Nexus.Add.Toggle(control,{
+            'size': [40,20],
+            'state': false
+        })
 
         this.toggle = Nexus.Add.Toggle(control, {
             'size': [40,20],
             'state': false
         });
-
         this.slider = Nexus.Add.Slider(control,{
             'size': [25, 100],
             'min': 82,
@@ -89,12 +100,29 @@ class Player {
             'value': 82
         });
 
+        this.position = new Nexus.Add.Position(control,{
+          'size': [200,200],
+          'mode': 'absolute',  // "absolute" or "relative"
+          'x': 0.5,  // initial x value
+          'minX': 30,
+          'maxX': 1000,
+          'stepX': 0,
+          'y': 0.5,  // initial y value
+          'minY': 0.1,
+          'maxY': 100,
+          'stepY': 0
+        });
+
+        this.tilt = new Nexus.Add.Tilt(control);
+
         this.dial = Nexus.Add.Dial(control,{
-            'size': [100,100],
+            'size': [50,50],
             'min': -100,
-            'max': -20,
+            'max': 0,
+            'step': 1,
             'value': -100
         });
+
 
         //  Sinte
         this.type = "square";
@@ -106,11 +134,29 @@ class Player {
         }).toDestination();
 
 
+        this.synth = new Tone.FMSynth({
+            modulationIndex: 12,
+            envelope: {
+                      attack: 0.01,
+                      decay: 0.2
+                  },
+            modulation: {
+                  type: "square"
+              },
+            modulationEnvelope: {
+            attack: 0.2,
+            decay: 0.01
+            },
+            volume: -100
+        }).toDestination();
+
     }
     destroyer() {
         this.slider.destroy();
         this.dial.destroy();
+        this.position.destroy();
         this.toggle.destroy();
+        this.fmtype.destroy();
     }
     
     // change() {
@@ -136,27 +182,6 @@ class Player {
 
 
 
-//Controles;
-var volcontrol = new Nexus.Dial('#dial',{
-  'size': [50,50],
-  'min': -100,
-  'max': 0,
-  'step': 1,
-  'value': -100
-});
-
-var position = new Nexus.Position('#dial',{
-  'size': [200,200],
-  'mode': 'absolute',  // "absolute" or "relative"
-  'x': 0.5,  // initial x value
-  'minX': 30,
-  'maxX': 1000,
-  'stepX': 0,
-  'y': 0.5,  // initial y value
-  'minY': 0.1,
-  'maxY': 100,
-  'stepY': 0
-})
 
   // var modcontrol = new Nexus.Dial('#dial',{
   //   'min': 0.01,
@@ -164,34 +189,5 @@ var position = new Nexus.Position('#dial',{
   //   'step': 1,
   //   'value': 0
   // });
-
-var button = new Nexus.Toggle('#dial',{
-  'size': [80,80],
-  'mode': 'aftertouch',
-  'state': false
-})
-
-var toggle = new Nexus.Toggle('#dial',{
-    'size': [40,20],
-    'state': false
-})
-
-const synth = new Tone.FMSynth({
-      modulationIndex: 12,
-      envelope: {
-                attack: 0.01,
-                decay: 0.2
-            },
-      modulation: {type: "square"},
-      modulationEnvelope: {
-      attack: 0.2,
-      decay: 0.01
-    },
-    volume: -100
-  }).toDestination();
-
-//funciones
-button.on('change',fu
-
 
 
