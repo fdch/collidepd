@@ -223,7 +223,10 @@ fieldset {
   border:none;
 }
 
-
+div #control {
+  float: left;
+  position: relative;
+}
 
 
 

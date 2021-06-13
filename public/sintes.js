@@ -62,101 +62,75 @@ function stoposc2() {
 // Federico Ragessi to Everyone (6:04 PM)
 
 control="#control"
+initfreq = 30
+class Control {
 
-class Player {
-
-    constructor(vol,freq) {
+    constructor() {
         // x e y es la ubicación del slider en un canvas, 
         // pero no se bien como vamos a hacer eso
         //acá se debe crear un slider linkeado al vol, econtré en p5 este objeto
         // vol = slider.value(//valor de inicio); //Entiendo que esto tiene que estar en un tipo de function Draw
         // this.x = x;
         // this.y = y;
-        this.vol = vol;
-        this.freq = freq;
 
 
-        this.button = new Nexus.Add.Toggle(control,{
+        this.button = new Nexus.Add.Button(control,{
           'size': [80,80],
-          'mode': 'aftertouch',
-          'state': false
+          // 'mode': 'aftertouch',
+          // 'state': false
         });
 
 
-        this.fmtype = new Nexus.Add.Toggle(control,{
-            'size': [40,20],
-            'state': false
-        })
+        // this.fmtype = new Nexus.Add.Toggle(control,{
+        //     'size': [40,20],
+        //     'state': false
+        // })
 
-        this.toggle = Nexus.Add.Toggle(control, {
-            'size': [40,20],
-            'state': false
-        });
+        // this.toggle = Nexus.Add.Toggle(control, {
+        //     'size': [40,20],
+        //     'state': false
+        // });
         this.slider = Nexus.Add.Slider(control,{
             'size': [25, 100],
-            'min': 82,
-            'max': 5000,
-            'step': 10,
-            'value': 82
-        });
-
-        this.position = new Nexus.Add.Position(control,{
-          'size': [200,200],
-          'mode': 'absolute',  // "absolute" or "relative"
-          'x': 0.5,  // initial x value
-          'minX': 30,
-          'maxX': 1000,
-          'stepX': 0,
-          'y': 0.5,  // initial y value
-          'minY': 0.1,
-          'maxY': 100,
-          'stepY': 0
-        });
-
-        this.tilt = new Nexus.Add.Tilt(control);
-
-        this.dial = Nexus.Add.Dial(control,{
-            'size': [50,50],
             'min': -100,
             'max': 0,
             'step': 1,
             'value': -100
         });
 
+        this.position = new Nexus.Add.Position(control,{
+          'size': [200,200],
+          'mode': 'absolute',  // "absolute" or "relative"
+          'x': initfreq,  // initial x value
+          'minX': initfreq,
+          'maxX': 1000,
+          'stepX': 0.4,
+          'y': 10,  // initial y value
+          'minY': 0.1,
+          'maxY': 100,
+          'stepY': 0.4
+        });
 
-        //  Sinte
-        this.type = "square";
+        this.tilt = new Nexus.Add.Tilt(control);
 
-        this.osc = new Tone.Oscillator({
-            type: this.type,
-            frequency: this.freq,
-            volume: this.vol
-        }).toDestination();
+        // this.dial = Nexus.Add.Dial(control,{
+        //     'size': [50,50],
+        //     'min': -100,
+        //     'max': 0,
+        //     'step': 1,
+        //     'value': -100
+        // });
 
 
-        this.synth = new Tone.FMSynth({
-            modulationIndex: 12,
-            envelope: {
-                      attack: 0.01,
-                      decay: 0.2
-                  },
-            modulation: {
-                  type: "square"
-              },
-            modulationEnvelope: {
-            attack: 0.2,
-            decay: 0.01
-            },
-            volume: -100
-        }).toDestination();
 
     }
     destroyer() {
         this.slider.destroy();
-        this.dial.destroy();
         this.position.destroy();
-        this.toggle.destroy();
-        this.fmtype.destroy();
+        this.button.destroy();
+        this.tilt.destroy();
+        // this.dial.destroy();
+        // this.fmtype.destroy();
     }
     
     // change() {
@@ -178,9 +152,48 @@ class Player {
     // }
 }
 
+class Player {
+    constructor(i) {
 
+        this.oscid = i.oscid;
+        this.id = i.id;
+        this.name = i.name;
+        this.time = i.time;
+        this.frequency = initfreq;
+        // this.vol = vol;
+        // this.freq = freq;
+        // //  Sinte
+        // this.type = "square";
 
+        // this.osc = new Tone.Oscillator({
+        //     type: this.type,
+        //     frequency: this.freq,
+        //     volume: this.vol
+        // }).toDestination();
 
+        this.synth = new Tone.FMSynth({
+            modulationIndex: 12,
+
+            envelope: {
+                      attack: 0.5,
+                      decay: 0.2,
+                      release: 1.0
+                  },
+            modulation: {
+                  type: "square"
+              },
+            modulationEnvelope: {
+            attack: 0.2,
+            decay: 0.01,
+            release: 1.0
+            },
+            volume: -100
+        }).toDestination();
+
+        console.log("Created synth: " + this.oscid);
+    }
+
+}
 
 
   // var modcontrol = new Nexus.Dial('#dial',{

@@ -1,21 +1,12 @@
-var players = [];
-
-var Motion = {
-  x : 0.5, 
-  y : 0.5,
-  z : 0.5,
-  t : 0.0,
-  m : 0.0,
-  s : 0.0,
-  running : false,
-  device : 'undefined'
-}
-
+const MAXUSERS = 1002;
 const userAgent = window.navigator.userAgent;
 const MAXCHATS = 10;
 var deviceIsAndroid;
-var canvas, socket, status;
-
+var canvas, socket, status, initialized=false;
+var userData = new Array(MAXUSERS), players, slots = new Array(MAXUSERS);
+var sintes = new Array(MAXUSERS);
+var connectedSintes, s;
+sintes.fill(0);
 var i, a;
 var sx,sy,angle,radius,click;
 var startButton = document.getElementById('start');
@@ -33,26 +24,37 @@ var usingMouse = false;
 var play = false;
 
 
-var accelRange = {
-  rawX: 0.0, // raw value as reported by device motion
-  loX: -10.0, // both axes will probably have same ranges, but you never know ..
-  hiX: 10.0,
-  scaleX: 20.0,   // total range of raw motion data (divide by this to get output in normalized range)
-  tempX: 0.0, // clamped raw value to be scaled
+// var Motion = {
+//   x : 0.5, 
+//   y : 0.5,
+//   z : 0.5,
+//   t : 0.0,
+//   m : 0.0,
+//   s : 0.0,
+//   running : false,
+//   device : 'undefined'
+// }
+
+// var accelRange = {
+//   rawX: 0.0, // raw value as reported by device motion
+//   loX: -10.0, // both axes will probably have same ranges, but you never know ..
+//   hiX: 10.0,
+//   scaleX: 20.0,   // total range of raw motion data (divide by this to get output in normalized range)
+//   tempX: 0.0, // clamped raw value to be scaled
   
-  rawY: 0.0,
-  loY: -10.0,
-  hiY: 10.0,
-  scaleY: 20.0,
-  tempY: 0.0,
+//   rawY: 0.0,
+//   loY: -10.0,
+//   hiY: 10.0,
+//   scaleY: 20.0,
+//   tempY: 0.0,
   
-  rawZ: 0.0,
-  loZ: -10.0,
-  hiZ: 10.0,
-  scaleZ: 20.0,
-  tempZ: 0.0,
+//   rawZ: 0.0,
+//   loZ: -10.0,
+//   hiZ: 10.0,
+//   scaleZ: 20.0,
+//   tempZ: 0.0,
   
-}
+// }
 
 
 // const gainNode = new Tone.Gain(0).toDestination();
@@ -64,242 +66,260 @@ var accelRange = {
 
 
 // self-calibrating device will call this often at first, then only with extreme motion
-function updateAccelRange() {
-  // find full range of raw values
-  accelRange.scaleX = accelRange.hiX - accelRange.loX; 
-  accelRange.scaleY = accelRange.hiY - accelRange.loY;
-  accelRange.scaleZ = accelRange.hiZ - accelRange.loZ;
-}
+// function updateAccelRange() {
+//   // find full range of raw values
+//   accelRange.scaleX = accelRange.hiX - accelRange.loX; 
+//   accelRange.scaleY = accelRange.hiY - accelRange.loY;
+//   accelRange.scaleZ = accelRange.hiZ - accelRange.loZ;
+// }
 
-if (userAgent.match(/Android/i)) {
-  deviceIsAndroid = true;
-}
-else {
-  deviceIsAndroid = false;
-}
+// if (userAgent.match(/Android/i)) {
+//   deviceIsAndroid = true;
+// }
+// else {
+//   deviceIsAndroid = false;
+// }
 
-function motionEvent(e) {
-  // get the raw accelerometer values (invert if Android)
-  if (deviceIsAndroid) {
-    accelRange.rawX = -(e.accelerationIncludingGravity.x);
-    accelRange.rawY = -(e.accelerationIncludingGravity.y);
-    accelRange.rawZ = -(e.accelerationIncludingGravity.z);
-  }
-  else {
-    accelRange.rawX = e.accelerationIncludingGravity.x;
-    accelRange.rawY = e.accelerationIncludingGravity.y;
-    accelRange.rawZ = e.accelerationIncludingGravity.z;
-  }
-  // clamp to default to iOS range (typically -10 to 10)
-  if (accelRange.rawX < accelRange.loX) { 
-    accelRange.tempX = accelRange.loX;
-  }
-  else if (accelRange.rawX > accelRange.hiX) {
-    accelRange.tempX = accelRange.hiX;
-  }
-  else {
-    accelRange.tempX = accelRange.rawX;
-  }
+// function motionEvent(e) {
+//   // get the raw accelerometer values (invert if Android)
+//   if (deviceIsAndroid) {
+//     accelRange.rawX = -(e.accelerationIncludingGravity.x);
+//     accelRange.rawY = -(e.accelerationIncludingGravity.y);
+//     accelRange.rawZ = -(e.accelerationIncludingGravity.z);
+//   }
+//   else {
+//     accelRange.rawX = e.accelerationIncludingGravity.x;
+//     accelRange.rawY = e.accelerationIncludingGravity.y;
+//     accelRange.rawZ = e.accelerationIncludingGravity.z;
+//   }
+//   // clamp to default to iOS range (typically -10 to 10)
+//   if (accelRange.rawX < accelRange.loX) { 
+//     accelRange.tempX = accelRange.loX;
+//   }
+//   else if (accelRange.rawX > accelRange.hiX) {
+//     accelRange.tempX = accelRange.hiX;
+//   }
+//   else {
+//     accelRange.tempX = accelRange.rawX;
+//   }
 
-  if (accelRange.rawY < accelRange.loY) {
-    accelRange.tempY = accelRange.loY;
-  }
-  else if (accelRange.rawY > accelRange.hiY) {
-    accelRange.tempY = accelRange.hiY;
-  }
-  else {
-    accelRange.tempY = accelRange.rawY;
-  }
+//   if (accelRange.rawY < accelRange.loY) {
+//     accelRange.tempY = accelRange.loY;
+//   }
+//   else if (accelRange.rawY > accelRange.hiY) {
+//     accelRange.tempY = accelRange.hiY;
+//   }
+//   else {
+//     accelRange.tempY = accelRange.rawY;
+//   }
 
-  if (accelRange.rawZ < accelRange.loZ) {
-    accelRange.tempZ = accelRange.loZ;
-  }
-  else if (accelRange.rawZ > accelRange.hiZ) {
-    accelRange.tempZ = accelRange.hiZ;
-  }
-  else {
-    accelRange.tempZ = accelRange.rawZ;
-  }
+//   if (accelRange.rawZ < accelRange.loZ) {
+//     accelRange.tempZ = accelRange.loZ;
+//   }
+//   else if (accelRange.rawZ > accelRange.hiZ) {
+//     accelRange.tempZ = accelRange.hiZ;
+//   }
+//   else {
+//     accelRange.tempZ = accelRange.rawZ;
+//   }
 
-  // normalize to 0.0 to 1.0
-  Motion.x  = (accelRange.tempX - accelRange.loX) / accelRange.scaleX;
-  Motion.y  = (accelRange.tempY - accelRange.loY) / accelRange.scaleY;
-  Motion.z  = (accelRange.tempZ - accelRange.loZ) / accelRange.scaleZ;
-}
+//   // normalize to 0.0 to 1.0
+//   Motion.x  = (accelRange.tempX - accelRange.loX) / accelRange.scaleX;
+//   Motion.y  = (accelRange.tempY - accelRange.loY) / accelRange.scaleY;
+//   Motion.z  = (accelRange.tempZ - accelRange.loZ) / accelRange.scaleZ;
+// }
 
 startButton.onclick = function () {
-  if (typeof DeviceMotionEvent.requestPermission === 'function') {
-  // iOS 13+
-  DeviceMotionEvent.requestPermission()
-  .then(response => {
-    if (response == 'granted') {
-      Motion.device = 'controller';
-      window.addEventListener('devicemotion', motionEvent);
-    }
-  })
-  .catch(console.error)
-  } else {
-    // non iOS 13+
-    if ('DeviceMotionEvent' in window) {
-      Motion.device = 'controller';
-      window.addEventListener('devicemotion', motionEvent); 
-    } else {
-      Motion.device = 'mouse';
-    }
-  }
-  if ( socket.connected ) {
-    socket.emit('onoff', 1);
-  }
-  Motion.device = 'mouse';
+  // if (typeof DeviceMotionEvent.requestPermission === 'function') {
+  // // iOS 13+
+  // DeviceMotionEvent.requestPermission()
+  // .then(response => {
+  //   if (response == 'granted') {
+  //     Motion.device = 'controller';
+  //     window.addEventListener('devicemotion', motionEvent);
+  //   }
+  // })
+  // .catch(console.error)
+  // } else {
+  //   // non iOS 13+
+  //   if ('DeviceMotionEvent' in window) {
+  //     Motion.device = 'controller';
+  //     window.addEventListener('devicemotion', motionEvent); 
+  //   } else {
+  //     Motion.device = 'mouse';
+  //   }
+  // }
+  // if ( socket.connected ) {
+  //   socket.emit('onoff', 1);
+  // }
+  // Motion.device = 'mouse';
 
-  Motion.running = true;
+  // Motion.running = true;
   Tone.start();
-  initPlayer(0);
-  // initPlayer(1);
+  /*
 
-  // startosc1();
-  // startosc2();
-}
+  Inicializar los sintes
 
-function initPlayer(i) {
+  */
+  // cuando apreto start, debo inicializar los players
+  // prender los intes de todos
+  a = userData.filter(function(x) { return x !==0 ; });
+  
+  for (i of a) {
 
-  var player = new Player(-100,80);
-  var p;
-  if (i>=0) {
-    p = players[i];
-    p = player;
-  } else {
-    players.push(player);
-    p = players[players.length];
-  }
+    let idx = i.oscid;
+    console.log(idx);
+    sintes[idx] = new Player(i);
 
-  p.slider.on('change',function(v) {
-      p.osc.frequency.rampTo(v, 0.1);
+    console.log(sintes[idx].oscid);
+  };
+  /*
+
+  Inicializar los controles
+
+  */
+
+  var c = new Control();
+
+  c.position.on('change',function(v) {
+      socket.emit('position', [s, v]);
+  });
+
+  c.button.on('change',function(v) {
+    socket.emit('trigger', [s, v]);
+  });
+
+  c.tilt.on('change',function(v) {
+    let x = Nexus.scale(v.x,0,1,0.01,20);
+    let y = Nexus.scale(v.y,0,1,80,5000);
+    // socket.emit('tilt', [s, v]);
+    // p.synth.modulationIndex.rampTo(x, 0.1);
+    // p.synth.frequency.rampTo(y, 0.1);
+    // console.log(x, y, v.z);
+  });
+
+  c.slider.on('change',function(v) {
+    let a = userData.filter(function(x) { return x !==0 ; });
+      for (let i of a) {
+        sintes[i.oscid].synth.volume.rampTo(v, 0.1);
+      }
       // socket.emit('slider'+(i+1),v);
   });
 
-  p.dial.on('change',function(v) {
-      p.osc.volume.rampTo(v, 0.1);
-      p.synth.volume.rampTo(v, 0.1);
-  });
 
-  p.toggle.on('change', function(v) {
-      if(v) {
-          p.osc.start();
-      } else {
-          p.osc.stop();
-      }
-  });
+  initialized = true;
+}
+
+// function initPlayer(i) {
+
+  
+  
+  // p = sintes[i];
+  // p = player;
+
+
+  // p.dial.on('change',function(v) {
+  //     p.osc.volume.rampTo(v, 0.1);
+  //     p.synth.volume.rampTo(v, 0.1);
+  // });
+
+  // p.toggle.on('change', function(v) {
+  //     if(v) {
+  //         p.osc.start();
+  //     } else {
+  //         p.osc.stop();
+  //     }
+  // });
 
   //funciones
-  p.button.on('change',function(v) {
-      if(v) {
-          // synth.frequency.value = 440;
-          p.synth.triggerAttack("A2");
-      } else {
-          p.synth.triggerRelease();
-      };
-  });
 
-  p.fmtype.on('change',function(v) {
-      if(v) {
-          p.synth.modulation.type = "sine";
-      }
-      else {
-          p.synth.modulation.type = "square";
-      }
-  });
+  // p.fmtype.on('change',function(v) {
+  //     if(v) {
+  //         p.synth.modulation.type = "sine";
+  //     }
+  //     else {
+  //         p.synth.modulation.type = "square";
+  //     }
+  // });
 
   // modcontrol.on('change',function(v) {
   //     synth.modulationIndex.rampTo(v, 0.1);
   //   })
 
-  p.position.on('change',function(v) {
-      p.synth.frequency.rampTo(v.x, 0.1);
-      p.synth.modulationIndex.rampTo(v.y, 0.1);
-      socket.emit('controls', v);
-  });
 
-  p.tilt.on('change',function(v) {
-    let x  = Nexus.scale(v.x,0,1,0.01,20);
-    let y = Nexus.scale(v.y,0,1,80,5000);
-    p.synth.modulationIndex.rampTo(x, 0.1);
-    p.synth.frequency.rampTo(y, 0.1);
-    // console.log(x, y, v.z);
-  });
-
-}
-
-function deinitPlayer(i) {
-  players[i].destroyer();
-}
-
+// }
 
 stopButton.onclick = function ()  {
   
-  Motion.running = false;
+  // Motion.running = false;
 
   if ( socket.connected ) {
     socket.emit('onoff', 0);
   }
   // stops listening for motion
 
-  if (Motion.device === 'controller') {
-    window.removeEventListener("devicemotion", motionEvent);
+  // if (Motion.device === 'controller') {
+  //   window.removeEventListener("devicemotion", motionEvent);
+  // }
+  // deinitPlayer(0);
+  let a = userData.filter(function(x) { return x !==0 ; });
+  for (let i of a) {
+    console.log(i.oscid);
+    sintes[i.oscid].destroyer();
   }
-  deinitPlayer(0);
+  initialized = false;
   // stoposc1();
   // stoposc2();
 }
 
-function deviceTurned() {
-  if (Motion.t == 0) {
-    Motion.t = 127;
-  } else if (Motion.t == 127) {
-    Motion.t = 0;
-  }
-}
-function deviceShaken() {
-  Motion.s += 1;
-  if (Motion.s > 128) {
-    Motion.s = 0;
-  }
-}
-function deviceMoved() {
-  Motion.m += 1;
-  if (Motion.m > 128) {
-    Motion.m = 0;
-  }
-}
+// function deviceTurned() {
+//   if (Motion.t == 0) {
+//     Motion.t = 127;
+//   } else if (Motion.t == 127) {
+//     Motion.t = 0;
+//   }
+// }
+// function deviceShaken() {
+//   Motion.s += 1;
+//   if (Motion.s > 128) {
+//     Motion.s = 0;
+//   }
+// }
+// function deviceMoved() {
+//   Motion.m += 1;
+//   if (Motion.m > 128) {
+//     Motion.m = 0;
+//   }
+// }
 
-function hexagon(col,num,i) {
-  i = frameCount * 0.1;
-  translate(width/2,height/2);
-  rotate(i);
-  angle = TWO_PI / num;
+// function hexagon(col,num,i) {
+//   i = frameCount * 0.1;
+//   translate(width/2,height/2);
+//   rotate(i);
+//   angle = TWO_PI / num;
 
-  if (radius < 0) {
-   //reset radius
-   clear();
-   radius = height/2;
+//   if (radius < 0) {
+//    //reset radius
+//    clear();
+//    radius = height/2;
 
-   // radius = 0;
-   // noLoop();
-  } else { 
-   radius = height/2 - i;
-  }
+//    // radius = 0;
+//    // noLoop();
+//   } else { 
+//    radius = height/2 - i;
+//   }
 
-  fill(col);
+//   fill(col);
 
-  beginShape();
-  for (a = 0; a < TWO_PI; a += angle) {
-   sx = cos(a) * radius + (Math.random()*2);
-   sy = sin(a) * radius + (Math.random()*2);
-   vertex(sx, sy);
-  }
+//   beginShape();
+//   for (a = 0; a < TWO_PI; a += angle) {
+//    sx = cos(a) * radius + (Math.random()*2);
+//    sy = sin(a) * radius + (Math.random()*2);
+//    vertex(sx, sy);
+//   }
 
- endShape(CLOSE);
-}
+//  endShape(CLOSE);
+// }
 
 function addChat(e) {
   if (messages.firstChild) 
@@ -311,76 +331,118 @@ function addChat(e) {
 
 
 
-function setup() {
+// function setup() {
 
-  canvas = createCanvas(windowWidth, windowHeight);
-  // const synth = new Tone.Synth().toDestination();
+//   canvas = createCanvas(windowWidth, windowHeight);
+//   // const synth = new Tone.Synth().toDestination();
 
-  
+    
 
-  frameRate(30);
+//   frameRate(30);
 
-  socket = io({
-    transports: ['websocket'],
-    autoConnect: true
-  });
+socket = io({
+  transports: ['websocket'],
+  autoConnect: true
+});
 
-  socket.on('connected', function(data) {
-      playerTitle.innerHTML = data[0].toString();
-      playersTitle.innerHTML= data[1].toString();
-      statusTitle.innerHTML = 'connected';
-      
-  });
-  
-  socket.on('disconnected', function() {
-      playerTitle.innerHTML = -1;
-      statusTitle.innerHTML = 'disconnected';
-  });
+socket.on('connected', function(data) {
+    s = data[0];
+    players= data[1];
 
-  socket.on('users', function(s) {
-      playersTitle.innerHTML = s.toString();
-  });
-  
-  socket.on('sliders', (data) => {
-    // console.log(data.length);
-    for(var i=0;i<data.length;i++){
-      // players[i].slider.value = data[i];
-      // players[i].dial.value = data[i];
-      // players[i].toggle.value = data[i];
-      players[i].osc.volume.rampTo(data[i],0.1);
-      // oscils[i].volume.rampTo(data[i],0.1);
-    }
-    // console.log(data);
-    // oscils[0].volume.value = val;
-    // set_vol1(data.value[0]);
-    // set_vol2(data.value[1]);
-  });
+    // display en la interfaz
+    playerTitle.innerHTML = s.toString();
+    playersTitle.innerHTML= players.toString();
+    statusTitle.innerHTML = 'connected';
+    if(initialized) {
 
-  chatbox.addEventListener("submit", function(evt) {
-    evt.preventDefault();
-    if(socket.connected) {
-      socket.emit('chat', chat.value);
-      addChat(chat.value);
-      chat.value = '';
+    } else {
+
     }
 
-  });
+    // habilitar sintes para todos los players
+    // caso 1 player:
+    //    solamente estoy conectado yo,
+    //    habilitar mi sinte solamente
+    
+    // caso 2 o mas:
+    //    para todos los players aparte de mi,
+    //    habilitar sus sintes
+ 
+});
 
-  for (i=0;i<MAXCHATS;i++) {
-    let li = document.createElement('li');
-    let liapp = messages.appendChild(li);
-    liapp.innerHTML = '.';
+socket.on('userdata', function(data) {
+    userData = data;
+    connectedSintes = userData.filter(function(x) { return x !==0 ; });
+    console.log(connectedSintes);
+
+});
+
+
+socket.on('disconnected', function() {
+    playerTitle.innerHTML = -1;
+    statusTitle.innerHTML = 'disconnected';
+});
+
+socket.on('users', function(s) {
+    playersTitle.innerHTML = s.toString();
+});
+
+// socket.on('sliders', (data) => {
+//   // console.log(data.length);
+//   for(var i=0;i<data.length;i++){
+//     // players[i].slider.value = data[i];
+//     // players[i].dial.value = data[i];
+//     // players[i].toggle.value = data[i];
+//     players[i].osc.volume.rampTo(data[i],0.1);
+//     // oscils[i].volume.rampTo(data[i],0.1);
+//   }
+//   // console.log(data);
+//   // oscils[0].volume.value = val;
+//   // set_vol1(data.value[0]);
+//   // set_vol2(data.value[1]);
+// });
+
+chatbox.addEventListener("submit", function(evt) {
+  evt.preventDefault();
+  if(socket.connected) {
+    socket.emit('chat', chat.value);
+    addChat(chat.value);
+    chat.value = '';
   }
 
-  socket.on('chat', function(e) {
-      addChat(e);
-  });
+});
 
-  socket.on('controls', (data) => {
-    console.log(data);
-  });
-
+for (i=0;i<MAXCHATS;i++) {
+  let li = document.createElement('li');
+  let liapp = messages.appendChild(li);
+  liapp.innerHTML = '.';
 }
+
+socket.on('chat', function(e) {
+    addChat(e);
+});
+
+socket.on('position', (data) => {
+  // console.log(data);
+  let player = sintes[data[0]];
+  let x  = data[1][1].x;
+  let y  = data[1][1].y;
+  player.synth.frequency.rampTo(x, 0.1);
+  player.synth.modulationIndex.rampTo(y, 0.1);
+  player.frequency = x;
+  console.log(player, x, y);
+});
+socket.on('trigger', (data) => {
+  let player = sintes[data[0]];
+  let v = data[1];
+  if(v) {
+      player.synth.triggerAttack();
+  } else {
+      player.synth.triggerRelease();
+  };
+  console.log(player,v);
+})
+// }
 // let k=0,t=0,m=0;
 // function loadingDots(w,h) {
 //   background(255);
