@@ -183,7 +183,8 @@ io.sockets.on('connection', function(socket) {
     socket.emit('disconnected'); // disconnect user oscid from osc
     // socket.broadcast.emit('userdata', userData);
     let players = slots.filter(x => x==1).length;
-    socket.broadcast.emit('users', players)
+    socket.broadcast.emit('users', players);
+    ///TODO: avisar quién se desconectó
   });
 
   socket.on('name',function(x) {
@@ -226,7 +227,9 @@ io.sockets.on('connection', function(socket) {
   socket.on('poll', function() {
     socket.emit('sliders',sliders); 
   });
-
+  socket.on('controls', function(data) {
+    io.sockets.emit('controls', [s, data]);
+  })
 
 });
 

@@ -175,7 +175,7 @@ function initPlayer(i) {
 
   p.slider.on('change',function(v) {
       p.osc.frequency.rampTo(v, 0.1);
-      socket.emit('slider'+(i+1),v);
+      // socket.emit('slider'+(i+1),v);
   });
 
   p.dial.on('change',function(v) {
@@ -217,6 +217,7 @@ function initPlayer(i) {
   p.position.on('change',function(v) {
       p.synth.frequency.rampTo(v.x, 0.1);
       p.synth.modulationIndex.rampTo(v.y, 0.1);
+      socket.emit('controls', v);
   });
 
   p.tilt.on('change',function(v) {
@@ -224,7 +225,7 @@ function initPlayer(i) {
     let y = Nexus.scale(v.y,0,1,80,5000);
     p.synth.modulationIndex.rampTo(x, 0.1);
     p.synth.frequency.rampTo(y, 0.1);
-    console.log(x, y, v.z);
+    // console.log(x, y, v.z);
   });
 
 }
@@ -375,28 +376,32 @@ function setup() {
       addChat(e);
   });
 
+  socket.on('controls', (data) => {
+    console.log(data);
+  });
+
 }
-let k=0,t=0,m=0;
-function loadingDots(w,h) {
-  background(255);
-  translate(w/2,h/2);
-  noStroke();
-  fill(0);
-  ellipse(100*sin(radians(k)),0,20*cos(radians(m)),20*cos(radians(m)));
-  ellipse(100*sin(radians(k)+PI/3),0,20*cos(radians(m)+PI/3),20*cos(radians(m)+PI/3));
-  ellipse(100*sin(radians(k)+PI/6),0,20*cos(radians(m)+PI/6),20*cos(radians(m)+PI/6));
-  if(k<360) {
-    k+=4;
-    if(180<k) {
-      if(m<360) {
-        m+=8;
-      } else m = 0;
-    }
-  } else {
-    k=0;
-    m=0;
-  }
-}
+// let k=0,t=0,m=0;
+// function loadingDots(w,h) {
+//   background(255);
+//   translate(w/2,h/2);
+//   noStroke();
+//   fill(0);
+//   ellipse(100*sin(radians(k)),0,20*cos(radians(m)),20*cos(radians(m)));
+//   ellipse(100*sin(radians(k)+PI/3),0,20*cos(radians(m)+PI/3),20*cos(radians(m)+PI/3));
+//   ellipse(100*sin(radians(k)+PI/6),0,20*cos(radians(m)+PI/6),20*cos(radians(m)+PI/6));
+//   if(k<360) {
+//     k+=4;
+//     if(180<k) {
+//       if(m<360) {
+//         m+=8;
+//       } else m = 0;
+//     }
+//   } else {
+//     k=0;
+//     m=0;
+//   }
+// }
 
 // if (players.length >= 1) {
 //   for (var player of players) {
@@ -405,63 +410,63 @@ function loadingDots(w,h) {
 // }
 
 
-function draw() {
+// function draw() {
 
 
 
-  if (socket.connected) {
+//   if (socket.connected) {
 
     
 
-    if (Motion.running) {
+//     if (Motion.running) {
 
-      if(players.length>=1) socket.emit('poll');
+//       if(players.length>=1) socket.emit('poll');
      
-      // background('rgba(0,255,0, 0.11)');
+//       // background('rgba(0,255,0, 0.11)');
      
-      if (Motion.device === 'mouse') {
-        Motion.x = map(mouseX, 0, width, 1, 0);
-        Motion.y = map(mouseY, 0, height, 1, 0);
-        Motion.z = map(mouseY+mouseX, 0, height, 1, 0);
-        socket.emit('event', {
-          header:'/xyz',
-          values: [ Motion.x, Motion.y, Motion.z ]
-        });
-        // let frequency = Motion.x * 500 + 100;
+//       if (Motion.device === 'mouse') {
+//         Motion.x = map(mouseX, 0, width, 1, 0);
+//         Motion.y = map(mouseY, 0, height, 1, 0);
+//         Motion.z = map(mouseY+mouseX, 0, height, 1, 0);
+//         socket.emit('event', {
+//           header:'/xyz',
+//           values: [ Motion.x, Motion.y, Motion.z ]
+//         });
+//         // let frequency = Motion.x * 500 + 100;
         
 
         
-        // gainNode.gain.rampTo(Motion.y, 0.1);
-        // console.log(x,y,z);
-      }
+//         // gainNode.gain.rampTo(Motion.y, 0.1);
+//         // console.log(x,y,z);
+//       }
 
 
       
-      if (Motion.device === 'controller') {
-        socket.emit('event', {
-          header:'/xyz',
-          values: [ Motion.x, Motion.y, Motion.z ]
-        });
-        socket.emit('event', {
-          header:'/act',
-          values: [ Motion.t, Motion.s, Motion.m]
-        });
-        // signal.value = Motion.x * 500 + 100;
-        // gainNode.gain.rampTo(Motion.y, 0.1);
+//       if (Motion.device === 'controller') {
+//         socket.emit('event', {
+//           header:'/xyz',
+//           values: [ Motion.x, Motion.y, Motion.z ]
+//         });
+//         socket.emit('event', {
+//           header:'/act',
+//           values: [ Motion.t, Motion.s, Motion.m]
+//         });
+//         // signal.value = Motion.x * 500 + 100;
+//         // gainNode.gain.rampTo(Motion.y, 0.1);
 
-      }
+//       }
       
-      // draw a hexagon
-      col = Motion.x * 255;
-      num = Motion.y * 14;
+//       // draw a hexagon
+//       col = Motion.x * 255;
+//       num = Motion.y * 14;
 
-      hexagon(col, num, i);
-    } 
-    else { // not playing
-    // background(255);
-     loadingDots(width, height);
-    }
-  } else { // socket disconnected
+//       hexagon(col, num, i);
+//     } 
+//     else { // not playing
+//     // background(255);
+//      loadingDots(width, height);
+//     }
+//   } else { // socket disconnected
 
-  }
-}
+//   }
+// }

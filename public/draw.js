@@ -8,7 +8,7 @@ function setup() {
 function draw() {
 	col = map(mouseY, 0, height, 1, 0);
 	num = map(mouseX, 0, width, 1, 0);
-	console.log(col,num);
+	// console.log(col,num);
 }
 // function hexagon(col,num,i) {
 // 	i = frameCount * 0.1;
