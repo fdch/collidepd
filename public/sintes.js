@@ -34,11 +34,14 @@ class Control {
             'size': [200,200]
         });
         this.tilt.active=false;
+        // create a meter on the destination node
+        this.meter = new Nexus.Add.Meter(control).connect(this.dac);
     }
     destroyer() {
         this.slider.destroy();
         this.position.destroy();
         this.tilt.destroy();
+        this.meter.destroy();
     }
 }
 
