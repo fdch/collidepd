@@ -105,7 +105,7 @@ io.sockets.on('connection', function(socket) {
     userData[s] = 0;
 
     // Broadcast the new userData array
-    socket.broadcast.emit('userdata', userData); 
+    socket.broadcast.emit('onoff', s); 
     
   });
 
@@ -155,8 +155,8 @@ io.sockets.on('connection', function(socket) {
   // "onoff" message
   //
   
-  socket.on('onoff', function(x) {
-    socket.broadcast.emit('onoff',s,x); 
+  socket.on('onoff', function() {
+    socket.broadcast.emit('onoff', s); 
   });
 
   //

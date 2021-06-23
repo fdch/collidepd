@@ -21,6 +21,7 @@ var players;      // the array of connected players
 
 var socket;       // the socket
 var now;          // Tone.now
+var CHORRO = true;
 sintes.fill(0);
 
 // -----------------------------------------------------------------------------
@@ -30,62 +31,25 @@ sintes.fill(0);
 // -----------------------------------------------------------------------------
 
 function updatePlayers(data, onoff) {
+
   players = data.filter(function(x) { return x !==0 ; });    
-      // ver cuál player hay que inicializar y cuál no.
-        // connectedSintesNew = data.filter(function(x) { return x !==0 ; });
-    // console.log(connectedSintes);
 
-    // for (let i=0; i<data.length-1;i++) {
-    //   // walk the list and find dis/connection
-    //   // there will never be contiguous zeros, 
-    //   // so if you find contiguous zeros, break out, you are done
-    //   if (data[i] === 0 && data[i+1] === 0) break;
-      
-    //   if (data[i] === 0) {
-    //     sintes[i] = 0;
-    //     console.log("Este se desconectó: " + i)
-    //     updatePlayers(data, false);
-    //   } else if (userData[i].id !== data[i].id) {
-    //   // check if value in userData is different from data at same index
-    //     // son distintos
-    //     console.log("Este se conectó: " + data[i].oscid)
-    //     updatePlayers(data, true);
-    //   }
-    // }
-    // habilitar sintes para todos los players
-    // caso 1 player:
-    //    solamente estoy conectado yo,
-    //    habilitar mi sinte solamente
-    
-    // caso 2 o mas:
-    //    para todos los players aparte de mi,
-    //    habilitar sus sintes
+  for (let i=0; i<players.length; i++) {
 
-
-  // no hacer nada si no Web Audio no está inicializado
-  // if (!initialized) return;
-
-  // filtrar los zeros
-  // let a = data.filter(function(x) { return x !== 0 ; });
-  // para todos los conectados
-  for (let i=0; i<data.length-1; i++) {
-
-    if (data[i] === data[i+1]) {
-      break;
-    } else {
-      // buscar el oscid (indice en sintes)
       let idx = data[i].oscid;
 
+      // console.log(idx);
+
       if (onoff) {
-        sintes[idx] = new Player(i);
+        if (sintes[idx]===0) {
+          sintes[idx] = new Player(data[i]);
+        } else {
+          console.log("Player "+idx+" is already ON.");
+        }
       } else {
         sintes[idx].destroyer();
-        sintes[idx] = 0;      
+        sintes[idx] = 0;
       }
-
-      console.log(sintes[idx].oscid);
-
-    }
   };
 
 };
@@ -146,15 +110,15 @@ socket = io({
 //
 // -----------------------------------------------------------------------------
 c.position.on('change',function(v) {
-  if(socket.connected) socket.emit('position', [s, v]);
+  if(socket.connected && CHORRO) socket.emit('position', [s, v]);
 });
 
 c.tilt.on('change',function(v) {
-  if(socket.connected) socket.emit('position', [s, v]);
+  if(socket.connected && CHORRO) socket.emit('position', [s, v]);
 });
 
 c.slider.on('change',function(v) {
-  c.dac.volume.rampTo(v,0.1);
+  dac.volume.rampTo(v,0.1);
 });
 
 // -----------------------------------------------------------------------------
@@ -186,10 +150,16 @@ socket.on('connected', function(data) {
 //
 
 socket.on('userdata', function(data) {
+    // console.log(data);
     updatePlayers(data, true);
+    userData = data;
 });
 
-
+socket.on('onoff', function(idx) {
+  console.log("Disconnecting: "+ idx);
+    sintes[idx].destroyer();
+    sintes[idx] = 0;
+});
 //
 // "chat" message
 //
@@ -199,9 +169,14 @@ socket.on('chat', function(e) {
 });
 
 socket.on('position', (data) => {
-  // console.log(data);
-  sintes[data[0]].pitch(data[1][1].x)
-  sintes[data[0]].mod(data[1][1].y)
+  
+  let i = data[0]; // indice del usuario
+  let x = data[1][1].x; // no cambiar
+  let y = data[1][1].y; // no cambiar
+  
+  sintes[i].pitch(x)
+  sintes[i].harmonicity(y)
+  // sintes[data[0]].harm(data[1][1].z)
   // player.synth.frequency.rampTo(x, 0.1);
   // player.synth.modulationIndex.rampTo(y, 0.1);
   // player.frequency = x;
@@ -225,10 +200,11 @@ startButton.onclick = async function () {
     now = Tone.now();
     console.log("Context started");
     // cuando apreto start, debo inicializar los players
-    // prender los intes de todos
-    await updatePlayers(userData, true);
+    // prender los sintes de todos
+    if (socket.connected) await updatePlayers(userData, true);
     Tone.Transport.start();
     initialized = true;
+    CHORRO = true;
   }
 };
 
@@ -240,19 +216,22 @@ startButton.onclick = async function () {
 
 stopButton.onclick = async function ()  {
   
-  // if (socket.connected) {
-  //   socket.emit('onoff', 0);
-  // }
+  if (socket.connected) {
+    socket.emit('onoff');
+  }
 
   if (initialized) {
     
     let a = userData.filter(function(x) { return x !==0 ; });
     for (let i of a) {
-      console.log(i.oscid);
-      sintes[i.oscid].destroyer();
-      // sintes[i.oscid] = 0;
+      let idx = i.oscid;
+      if (sintes[idx] !== 0) {
+        sintes[idx].destroyer();
+        sintes[idx] = 0;
+      }
     }
     Tone.Transport.stop();
     initialized = false;
+    CHORRO = false;
   }
 };
