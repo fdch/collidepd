@@ -57,115 +57,130 @@ io.sockets.on('connection', function(socket) {
 
   var s = userData.findIndex( (e) => e === 0 );
   
-  userData[s] = { 
-    id: socket.id,
-    oscid: s,
-    name: '',
-    time: new Date().getTime()
-  };
+  if (s >= 0) {
+    userData[s] = { 
+      id: socket.id,
+      oscid: s,
+      name: '',
+      time: new Date().getTime()
+    };
 
-  //
-  // 1. tell this user its id and num of players 
-  // oscid y cantidad de players
-  //
-  
-  let players = userData.filter(x => x!==0).length;
-  socket.emit('connected', [s, players]);
-
-  //
-  // 2. emit to all users the userData array
-  // (info de los usuaris conectados al momento)
-  // enviando a todos los clientes toda la userdata actual
-  //
-  
-  io.sockets.emit('userdata', userData); 
-
-  //
-  // 3. reportar conexion en la consola del servidor
-  //
-
-  console.log("slot:%d -- %s", s, socket.id);
-
-  // ---------------------------------------------------------------------  
-  // ---------------------------------------------------------------------  
-  // EVENT HANDLING
-  // ---------------------------------------------------------------------  
-  // ---------------------------------------------------------------------  
-
-  //
-  // handle "disconnection"
-  //
-
-  socket.on('disconnect', function() {
+    //
+    // 1. tell this user its id and num of players 
+    // oscid y cantidad de players
+    //
     
-    // report to server console
-    console.log("disconnecting ", s);
+    let players = userData.filter(x => x!==0).length;
+    socket.emit('connected', [s, players]);
 
-    // Free our slot in the userdata array
-    userData[s] = 0;
-
-    // Broadcast the new userData array
-    socket.broadcast.emit('onoff', s); 
+    //
+    // 2. emit to all users the userData array
+    // (info de los usuaris conectados al momento)
+    // enviando a todos los clientes toda la userdata actual
+    //
     
-  });
+    io.sockets.emit('userdata', userData); 
 
-  //
-  // "name" change
-  //
+    //
+    // 3. reportar conexion en la consola del servidor
+    //
 
-  socket.on('name',function(x) {
-    userData[s].name = x;
-    socket.broadcast.emit('notify', x + " joined.")
-  });
+    console.log("slot:%d -- %s", s, socket.id);
 
-  //
-  // "userdata" array polling
-  //
+    // ---------------------------------------------------------------------  
+    // ---------------------------------------------------------------------  
+    // EVENT HANDLING
+    // ---------------------------------------------------------------------  
+    // ---------------------------------------------------------------------  
+
+    //
+    // handle "disconnection"
+    //
+
+    socket.on('disconnect', function() {
+      
+      // report to server console
+      console.log("disconnecting ", s);
+
+      // Free our slot in the userdata array
+      userData[s] = 0;
+
+      // Broadcast the new userData array
+      socket.broadcast.emit('removeuser', s); 
+
+      // Broadcast the new userData array
+      socket.broadcast.emit('userdata', userData);
+      
+    });
+
+    //
+    // "name" change
+    //
+
+    socket.on('name',function(x) {
+      userData[s].name = x;
+      socket.broadcast.emit('notify', x + " joined.")
+    });
+
+    //
+    // "userdata" array polling
+    //
+    
+    socket.on('userdata', function() {
+      // send userData to requester
+      socket.emit('userdata', userData);
+    })
+
+    //
+    // handle "chat"
+    //
+    
+    socket.on('chat', function(data) {
+      // broadcast the chat message as-is
+      socket.broadcast.emit('chat',data); 
+    });
+
+    //
+    // "event" event handling
+    //
+    
+    socket.on('event', function(data) {
+      const event = {
+        head: data.header,
+        value: data.values,
+        time: new Date().getTime(),
+        id: s
+      }
+      // emit the event to all clients
+      io.sockets.emit('event', event); 
+    });
+
+    //
+    // "onoff" message
+    //
+    
+    socket.on('onoff', function() {
+      socket.broadcast.emit('onoff', s); 
+    });
+
+    //
+    // "position" message
+    //
+
+    socket.on('position', function(data) {
+      io.sockets.emit('position', [s, data]);
+    })
+  } else {
+    // TODO: if s is undefined, tell user to wait
+    socket.emit("waiting");
+    // for (infinito) {
+    //   proba si hay lugar,
+    //   si hay lugar, 
+    //   anda a la funcion de arriba
+    // }
+  }
+
   
-  socket.on('userdata', function() {
-    // send userData to requester
-    socket.emit('userdata', userData);
-  })
-
-  //
-  // handle "chat"
-  //
-  
-  socket.on('chat', function(data) {
-    // broadcast the chat message as-is
-    socket.broadcast.emit('chat',data); 
-  });
-
-  //
-  // "event" event handling
-  //
-  
-  socket.on('event', function(data) {
-    const event = {
-      head: data.header,
-      value: data.values,
-      time: new Date().getTime(),
-      id: s
-    }
-    // emit the event to all clients
-    io.sockets.emit('event', event); 
-  });
-
-  //
-  // "onoff" message
-  //
-  
-  socket.on('onoff', function() {
-    socket.broadcast.emit('onoff', s); 
-  });
-
-  //
-  // "position" message
-  //
-
-  socket.on('position', function(data) {
-    io.sockets.emit('position', [s, data]);
-  })
 
 });// end io.sockets.on
 // =============================================================================

@@ -30,27 +30,28 @@ sintes.fill(0);
 //
 // -----------------------------------------------------------------------------
 
-function updatePlayers(data, onoff) {
+function updatePlayers(data) {
 
-  players = data.filter(function(x) { return x !==0 ; });    
+  players = data.filter(function(x) { return x !==0 ; });
 
+  
   for (let i=0; i<players.length; i++) {
 
-      let idx = data[i].oscid;
+      let idx = players[i].oscid;
 
       // console.log(idx);
 
-      if (onoff) {
-        if (sintes[idx]===0) {
-          sintes[idx] = new Player(data[i]);
-        } else {
-          console.log("Player "+idx+" is already ON.");
-        }
+      if (sintes[idx]===0) {
+        sintes[idx] = new Player(data[i]);
       } else {
-        sintes[idx].destroyer();
-        sintes[idx] = 0;
+        console.log("Player "+idx+" is already ON.");
       }
   };
+
+
+  num_players = players.length;
+  
+  playersTitle.innerHTML= num_players.toString();
 
 };
 
@@ -151,14 +152,18 @@ socket.on('connected', function(data) {
 
 socket.on('userdata', function(data) {
     // console.log(data);
-    updatePlayers(data, true);
+    updatePlayers(data);
     userData = data;
 });
 
-socket.on('onoff', function(idx) {
-  console.log("Disconnecting: "+ idx);
-    sintes[idx].destroyer();
-    sintes[idx] = 0;
+socket.on('removeuser', function(idx) {
+    console.log("Disconnecting: "+ idx);
+    if (sintes[idx]!=0) {
+      sintes[idx].destroyer();
+      sintes[idx] = 0;
+    } else {
+      console.log("Player "+idx+" is already OFF.");
+    }
 });
 //
 // "chat" message
@@ -201,7 +206,7 @@ startButton.onclick = async function () {
     console.log("Context started");
     // cuando apreto start, debo inicializar los players
     // prender los sintes de todos
-    if (socket.connected) await updatePlayers(userData, true);
+    if (socket.connected) await updatePlayers(userData);
     Tone.Transport.start();
     initialized = true;
     CHORRO = true;
