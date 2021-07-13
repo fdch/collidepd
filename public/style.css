@@ -170,11 +170,11 @@ textarea{
   padding-left: 0;
 }
 
-input { 
-  display: block; 
+input {
+  display: block;
 }
-ul { 
-  list-style: none; 
+ul {
+  list-style: none;
 }
 
 
@@ -223,17 +223,44 @@ fieldset {
   border:none;
 }
 
-div #control div {
+/* div #control div {
   float: left;
   position: relative;
+} */
+
+/* Armar la estructura diseñada en la versión */
+@media screen and (orientation: portrait) {
+  main{
+    width: auto;
+    height: 600px;
+  }
 }
 
+/* For landscape, we want the tool bar stick on the left */
+@media screen and (orientation: landscape) {
+  main{
+    width: 600px;
+    height: auto;
+  }
+}
 
+#contsuperior{
+  height: 20%;
+  position: top;
+  border: 1px solid black;
+}
 
+#continferior{
+  height: 80%;
+  position: top;
+  /* margin-top: 100px; */
+  border: 1px solid red;
+}
 
-
-
-
-
-
-
+#controlsuperior div {
+  /* height: 100px; */
+  margin: 10px;
+  float: left;
+  position: relative;
+  padding-left: 50px;
+}
