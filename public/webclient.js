@@ -245,12 +245,17 @@ socket.on('tilt', (data) => {
   let y = data[1].y; // no cambiar
   let z = data[1].z; // no cambiar
   // console.log(data[1].x);
+  // console.log(x);
+  // console.log(y);
+  // console.log(z);
 
-  sintes[i].pitch(Nexus.scale(x, -1, 1, 200, 5000));
-  sintes[i].detune(Nexus.scale(y, -1, 1, 0, 1));
+
+  sintes[i].pitch(Nexus.scale(x, 0, 1, 200, 5000))
+  sintes[i].filterf(Nexus.scale(y, -1, 1.5, 0, 1))
   sintes[i].loop.set({
-    interval: Nexus.scale(z, 0, 1, 0.001, 0.1)
-  });
+    interval: Nexus.scale(z, 0, 1, 0.005, 1)
+  })
+
 
   // sintes[data[0]].harm(data[1][1].z)
   // player.synth.frequency.rampTo(x, 0.1);
@@ -276,7 +281,7 @@ socket.on('verb', (data) => {
 
   let i = data[0]; // indice del usuario
   let x = data[1];
-  console.log(data);
+  // console.log(data);
   sintes[i].verbwet(x);
 
   // sintes[data[0]].harm(data[1][1].z)
@@ -322,10 +327,12 @@ socket.on('position', (data) => {
   let x = data[1].x; // no cambiar
   let y = data[1].y; // no cambiar
 
-  sintes[i].pitch(x);
-  sintes[i].detune(y);
+
+  sintes[i].pitch(x)
+  sintes[i].filterf(y)
+
   // sintes[i].envelope(c.position.event.clicked)
-  console.log(c.position);
+  // console.log(c.position);
 
   // sintes[data[0]].harm(data[1][1].z)
   // player.synth.frequency.rampTo(x, 0.1);
