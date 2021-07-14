@@ -1,7 +1,22 @@
 /* style.css */
 
 body {
-  font: 23px Helvetica, Arial;
+  font-family: Helvetica, Arial;
+  font-size: 1.2em;
+  overflow:hidden;
+}
+header, main, footer { 
+  position:relative;
+  float:left;
+  /* border: 1px solid black; */
+}
+#chat-container {
+  display:none;
+  position:absolute;
+  top:40px;
+  left:0;
+  z-index:100;
+  background-color:lightgrey;
 }
 
 button{
@@ -10,14 +25,15 @@ button{
 }
 
 #status-bar {
-  font-size:1em;
-  padding:10px;
   display:inline;
 }
 
-#chat-container {
-  display:none;
+.status {
+  border-right:1px solid black;
+  padding-right: 10px;
 }
+
+
 
 #bodybox {
   margin: auto;
@@ -63,39 +79,19 @@ input[type=submit]{
   margin:0;
 }
 
-/* Armar la estructura diseñada en la versión */
-@media screen and (orientation: portrait) {
-  main{
-    width: auto;
-    height: 600px;
-  }
-}
-
-/* For landscape, we want the tool bar stick on the left */
-@media screen and (orientation: landscape) {
-  main{
-    width: 600px;
-    height: auto;
-  }
-}
-
 #contsuperior{
-  height: 20%;
-  position: top;
-  border: 1px solid black;
+  overflow:hidden;
 }
-
+#contposition{
+  overflow:hidden;
+}
 #continferior{
-  height: 80%;
-  position: top;
-  /* margin-top: 100px; */
-  border: 1px solid red;
+  padding:0;
+  overflow:hidden;
 }
 
-#controlsuperior div {
-  /* height: 100px; */
-  margin: 10px;
+#controlsuperior div, #controlinferior div {
   float: left;
   position: relative;
-  padding-left: 50px;
+  padding:2px;
 }
