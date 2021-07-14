@@ -29,6 +29,8 @@ sintes.fill(0);
 var colorFront = 'rgb(130, 254, 255)';
 var colorBack = 'white';
 var chatStatus = false;
+
+
 // -----------------------------------------------------------------------------
 //
 // UPDATE PLAYERS
@@ -68,19 +70,16 @@ function updatePlayers(data) {
 // -----------------------------------------------------------------------------
 
 function addChat(data) {
-
-  let li = document.createElement('li');
-  let liapp = messages.appendChild(li);
   
-  if (messages.firstChild) {
-    messages.removeChild(messages.firstChild);
+  if( data.value !== "" && data.head >= 0 ) {
+    if (messages.firstChild) 
+      messages.removeChild(messages.firstChild);
+
+    let li = document.createElement('li');
+    let liapp = messages.appendChild(li);
+    liapp.innerHTML = data.head + ": " + data.value;
   }
-  console.log(data);
-  if(data.value==="") {
-    data.value = " ";
-    head.value = " ";
-  }
-  liapp.innerHTML = data.head+": "+data.value;
+ 
 }
 
 chatbox.addEventListener("submit", function(evt) {

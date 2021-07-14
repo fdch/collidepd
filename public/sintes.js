@@ -1,7 +1,7 @@
 var controlsup  = '#controlsuperior';
 var controlinf  = '#controlinferior';
 
-dac = new Tone.Channel({
+var dac = new Tone.Channel({
   volume:-Infinity,
   pan:0,
   channelCount:2
@@ -74,16 +74,16 @@ class Control {
       'maxX': 5000,
       'stepX': 1,
       'y': 0.5,  // initial y value
-      'minY': 0,
-      'maxY': 75,
+      'minY': 100,
+      'maxY': 5000,
       'stepY': 0
       // 'releaseEvent':
     });
 
 
     //
-    // // create a meter on the destination node
-    // this.meter = new Nexus.Add.Meter(control).connect(dac);
+    // create a meter on the destination node
+    this.meter = new Nexus.Add.Meter(controlinf).connect(dac);
   }
   destroyer() {
     this.slidervol.destroy();
@@ -117,16 +117,16 @@ class Player {
       portamento: 0,
       volume: 0,
       envelope: {
-        attack: 0.01,
+        attack: 0.1,
         attackCurve: "linear",
-        decay: 0.3,
+        decay: 0.7,
         decayCurve: "exponential",
         release: 1,
         releaseCurve: "exponential",
-        sustain: 1
+        sustain: 0
       },
       filter: {
-        Q: 1,
+        Q: 0.5,
         detune: 0,
         frequency: 0, //position2
         gain: 0,
@@ -136,12 +136,12 @@ class Player {
       filterEnvelope: {
         attack: 0.1,
         attackCurve: "linear",
-        decay: 0.7,
+        decay: 0.3,
         decayCurve: "exponential",
         release: 0.5,
         releaseCurve: "exponential",
         sustain: 0,
-        baseFrequency: 100,
+        baseFrequency: 300,
         exponent: 2,
         octaves: 4
       },
@@ -158,32 +158,29 @@ class Player {
       // // vel = Nexus.rf(0.1, 1);
       this.pitch(this.freq);
       this.synth.triggerAttackRelease(this.freq);
-      console.log(this.loop.interval);
+      // console.log(this.loop.interval);
     },1);
     Tone.Transport.start();
 
 
 
-
-    // The Player's Main Channel
-    this.channel = new Tone.Channel();
-    this.dist = new Tone.Distortion(0.8);
-
-    // The Player's FEEDBACK DELAY
-    this.fdelay = new Tone.FeedbackDelay({
-      delayTime: '2n',
-      feedback: 0.5}).connect(dac);
-      this.verb = new Tone.Reverb().connect(dac);
-      // this.shift = new Tone.PitchShift(5);
-      // this.synth.chain(this.shift, this.fdelay, dac);
+    // The Player's Main Channel effects
+      this.filter = new Tone.Filter(200, "lowpass", -12)
+      this.dist = new Tone.Distortion(0.8);
+      this.fdelay = new Tone.FeedbackDelay({
+        delayTime: '2n',
+        feedback: 0.5});
+      this.verb = new Tone.Reverb().connect(this.filter);
+      // this.channelfx = new Tone.channel()connect(dac);
 
 
       // The Player's EQUAL PANNER OBJ
       this.panner  = new Tone.Panner({pan:0});
-      this.lfo = new Tone.LFO(0.1, -1,1).connect(this.panner.pan).start();
+      this.lfo = new Tone.LFO(1, -1,1).connect(this.panner.pan).start();
 
       // The FX CHAIN --> connects player to dac
-      this.synth.chain(this.panner, this.channel, dac);
+      this.synth.chain(this.panner, this.filter, dac);
+      this.panner.chain(this.fdelay, this.verb, dac);
       this.synth.fan(this.fdelay);
       this.synth.fan(this.verb);
 
@@ -196,7 +193,7 @@ class Player {
     }
 
     pitch(f) {
-      console.log(f);
+      // console.log(f);
       this.freq = f;
       this.synth.triggerAttackRelease(f)
       // this.synth.frequency.rampTo(f, 0.1);
@@ -216,7 +213,8 @@ class Player {
     }
 
     filterf(f) {
-      this.synth.filter.frequency.rampTo(f, 1);
+      // console.log(f);
+      this.filter.frequency.rampTo(f,0.1);
     }
 
     delaywet(f) {
@@ -229,15 +227,15 @@ class Player {
     }
 
     selectFilter(f) {
-      console.log(f);
-      this.synth.filter.set({
+      // console.log(f);
+      this.filter.set({
         type:f.value
       }
     )
   }
 
   selectSource(f) {
-    console.log(f);
+    // console.log(f);
 
     this.synth.oscillator.type = f.value
   }
@@ -253,14 +251,16 @@ class Player {
 
   setrandom(f) {
     if(f){
-      this.fdelay.delayTime.linearRampTo(Nexus.rf(0.01,1), Nexus.rf(0.01,1));
-      this.fdelay.feedback.linearRampTo(Nexus.rf(0.01,1), Nexus.rf(0.01,1));
-      this.loop.interval = Nexus.rf(0.01,1);
+      this.fdelay.delayTime.linearRampTo(Nexus.rf(0.005,1), Nexus.rf(0.1,1));
+      this.fdelay.feedback.linearRampTo(Nexus.rf(0.005,1), Nexus.rf(0.1,1));
+      this.verb.decay = Nexus.rf(0.1,2);
+      this.loop.interval = Nexus.rf(0.005,5);
     }
     else{
-      this.fdelay.delayTime.linearRampTo(Nexus.rf(0.01,1),Nexus.rf(0.01,1));
-      this.fdelay.feedback.linearRampTo(Nexus.rf(0.01,1),Nexus.rf(0.01,1));
-      this.loop.interval = Nexus.rf(0.01,1);
+      this.fdelay.delayTime.linearRampTo(Nexus.rf(0.01,1),Nexus.rf(0.1,1));
+      this.fdelay.feedback.linearRampTo(Nexus.rf(0.01,1),Nexus.rf(0.1,1));
+      this.verb.decay = Nexus.rf(0.1,2);
+      this.loop.interval = Nexus.rf(0.005,5);
     }
   }
 
