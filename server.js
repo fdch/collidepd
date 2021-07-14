@@ -176,6 +176,7 @@ io.sockets.on('connection', function(socket) {
     })
     socket.on('tilt', function(data) {
       io.sockets.emit('tilt', [s, data]);
+      console.log(data);
     })
     //Wet Delay
     socket.on('delay', function(data) {
@@ -184,7 +185,7 @@ io.sockets.on('connection', function(socket) {
     //Wet Reverb
     socket.on('verb', function(data) {
       io.sockets.emit('verb', [s, data]);
-      console.log(data);
+      // console.log(data);
     })
     //Selector de Filtro
     socket.on('selectF', function(data) {
