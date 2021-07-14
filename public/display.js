@@ -1,3 +1,16 @@
+
+const startButton  = document.getElementById('start');
+const stopButton   = document.getElementById('stop');
+const playerTitle  = document.getElementById('userid');
+const playersTitle = document.getElementById('players');
+const statusTitle  = document.getElementById('status');
+const messages     = document.getElementById('messages');
+const chatbox      = document.getElementById('chatbox');
+const chatButton   = document.getElementById('show-chat');
+const chat         = document.getElementById('chat');
+const chatContainer= document.getElementById('chat-container');
+const userAgent    = window.navigator.userAgent;
+
 var win = window,
     doc = document,
     docElem = doc.documentElement,
@@ -65,6 +78,5 @@ const ctrlDivs = [
 
 for (let e of ctrlDivs) {
     e.style.position = "relative";
-    // e.style.overflow = "hidden";
     e.style.width = displayW-pad + "px";
 }
