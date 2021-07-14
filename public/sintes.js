@@ -46,7 +46,7 @@ class Control {
     this.posSize = displayW <= displayH ? displayW : displayH;
     
     this.position = new Nexus.Add.Position(controlpos,{
-      'size': [this.posSize, this.posSize],
+      'size': [this.posSize-pad, this.posSize-pad],
       'mode': 'absolute',  // absolute or relative
       'x': 0.5,  // initial x value
       'minX': 100,

@@ -30,12 +30,15 @@ if (x >= y) {
     h = y;
 }
 
-const pad = 5, mgn = 5;
+const pad = 4, mgn = 4;
 const elements = ['header','main','footer'];
 
-const displayW = w - pad * 2 - 4;
+
+let dw = w - pad * 2 - 4;
+const displayW = dw > 500 ? 500 : dw < 200 ? 200: dw;
+
 const headHeight = 45;
-const displayH = h - headHeight * 2 - 8;
+const displayH = h - headHeight * 2 - 4;
 
 for (let e of elements){
     let t = document.getElementsByTagName(e)[0];
@@ -51,4 +54,17 @@ for (let e of elements){
         t.style.height = headHeight-pad + "px";
     }
 }
+const ctrlDivs = [
+    document.getElementById('continferior'),
+    document.getElementById('contposition'),
+    document.getElementById('contsuperior'),
+    document.getElementById('controlsuperior'),
+    document.getElementById('controlinferior'),
+    document.getElementById('controlposition')
+];
 
+for (let e of ctrlDivs) {
+    e.style.position = "relative";
+    // e.style.overflow = "hidden";
+    e.style.width = displayW-pad + "px";
+}
