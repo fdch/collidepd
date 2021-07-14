@@ -32,6 +32,11 @@ let userData = new Array(MAXUSERS);
 userData.fill(0);
 
 //
+// cantidad máxima de chats (10)
+//
+const chatHist = new Array(10);
+chatHist.fill({head:1002,value:""});
+//
 // SERVE THE HOMEPAGE
 //
 app.use(express.static(path.join(__dirname, 'public')));
@@ -87,6 +92,8 @@ io.sockets.on('connection', function(socket) {
 
     console.log("slot:%d -- %s", s, socket.id);
 
+    socket.emit('chathist', chatHist);
+
     // ---------------------------------------------------------------------
     // ---------------------------------------------------------------------
     // EVENT HANDLING
@@ -119,7 +126,7 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('name',function(x) {
       userData[s].name = x;
-      socket.broadcast.emit('notify', x + " joined.")
+      socket.broadcast.emit('notify', x + " joined.");
     });
 
     //
@@ -129,15 +136,21 @@ io.sockets.on('connection', function(socket) {
     socket.on('userdata', function() {
       // send userData to requester
       socket.emit('userdata', userData);
-    })
+    });
 
     //
     // handle "chat"
     //
 
     socket.on('chat', function(data) {
-      // broadcast the chat message as-is
-      socket.broadcast.emit('chat',data);
+      const chat = {
+        head: s,
+        value: data
+      };
+      chatHist.shift();
+      chatHist.push(chat);
+      // broadcast the last chat message
+      socket.broadcast.emit('chat', chat);
     });
 
     //
@@ -150,7 +163,7 @@ io.sockets.on('connection', function(socket) {
         value: data.values,
         time: new Date().getTime(),
         id: s
-      }
+      };
       // emit the event to all clients
       io.sockets.emit('event', event);
     });
@@ -170,33 +183,33 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('loopstart', function(data) {
       io.sockets.emit('loopstart', [s, data]);
-    })
+    });
     socket.on('set', function(data) {
       io.sockets.emit('set', [s, data]);
-    })
+    });
     socket.on('tilt', function(data) {
       io.sockets.emit('tilt', [s, data]);
-    })
+    });
     //Wet Delay
     socket.on('delay', function(data) {
       io.sockets.emit('delay', [s, data]);
-    })
+    });
     //Wet Reverb
     socket.on('verb', function(data) {
       io.sockets.emit('verb', [s, data]);
       console.log(data);
-    })
+    });
     //Selector de Filtro
     socket.on('selectF', function(data) {
       io.sockets.emit('selectF', [s, data]);
-    })
+    });
     //Selector de Fuente
     socket.on('selectS', function(data) {
       io.sockets.emit('selectS', [s, data]);
-    })
+    });
     socket.on('position', function(data) {
       io.sockets.emit('position', [s, data]);
-    })
+    });
   } else {
     // TODO: if s is undefined, tell user to wait
     socket.emit("waiting");
