@@ -34,7 +34,7 @@ function updatePlayers(data) {
 
   players = data.filter(function(x) { return x !==0 ; });
 
-  
+
   for (let i=0; i<players.length; i++) {
 
       let idx = players[i].oscid;
@@ -50,7 +50,7 @@ function updatePlayers(data) {
 
 
   num_players = players.length;
-  
+
   playersTitle.innerHTML= num_players.toString();
 
 };
@@ -75,15 +75,15 @@ function addChat(e) {
 }
 
 chatbox.addEventListener("submit", function(evt) {
-  
+
   evt.preventDefault();
-  
+
   if(socket.connected) {
-  
+
     socket.emit('chat', chat.value);
     addChat(chat.value);
     chat.value = '';
-  
+
   }
 
 });
@@ -110,15 +110,40 @@ socket = io({
 // INICIALIZAR LOS CONTROLES
 //
 // -----------------------------------------------------------------------------
-c.position.on('change',function(v) {
-  if(socket.connected && CHORRO) socket.emit('position', [s, v]);
+c.onoff.on('change',function(v) {
+  if(socket.connected && CHORRO) socket.emit('loopstart', v);
+});
+
+c.set.on('change',function(v) {
+  if(socket.connected && CHORRO) socket.emit('set', v);
 });
 
 c.tilt.on('change',function(v) {
-  if(socket.connected && CHORRO) socket.emit('position', [s, v]);
+  if(socket.connected && CHORRO) socket.emit('tilt', v);
 });
 
-c.slider.on('change',function(v) {
+c.delay.on('change',function(v) {
+  if(socket.connected && CHORRO) socket.emit('delay', v);
+});
+
+c.verb.on('change',function(v) {
+  if(socket.connected && CHORRO) socket.emit('verb', v);
+});
+
+c.selectF.on('change',function(v) {
+  if(socket.connected && CHORRO) socket.emit('selectF', v);
+});
+
+c.selectS.on('change',function(v) {
+  if(socket.connected && CHORRO) socket.emit('selectS', v);
+});
+
+c.position.on('change',function(v) {
+  if(socket.connected && CHORRO) socket.emit('position', v);
+});
+
+//local
+c.slidervol.on('change',function(v) {
   dac.volume.rampTo(v,0.1);
 });
 
@@ -172,15 +197,53 @@ socket.on('removeuser', function(idx) {
 socket.on('chat', function(e) {
     addChat(e);
 });
+//Socket.on recibe los mensajes desde el servidor
 
-socket.on('position', (data) => {
-  
+
+socket.on('loopstart', (data) => {
+
   let i = data[0]; // indice del usuario
-  let x = data[1][1].x; // no cambiar
-  let y = data[1][1].y; // no cambiar
-  
-  sintes[i].pitch(x)
-  sintes[i].harmonicity(y)
+  let x = data[1];
+
+
+  sintes[i].loopstart(x)
+  // sintes[data[0]].harm(data[1][1].z)
+  // player.synth.frequency.rampTo(x, 0.1);
+  // player.synth.modulationIndex.rampTo(y, 0.1);
+  // player.frequency = x;
+  // console.log(player, x, y);
+})
+
+socket.on('set', (data) => {
+
+  let i = data[0]; // indice del usuario
+  let x = data[1];
+  sintes[i].setrandom(x);
+
+  // sintes[data[0]].harm(data[1][1].z)
+  // player.synth.frequency.rampTo(x, 0.1);
+  // player.synth.modulationIndex.rampTo(y, 0.1);
+  // player.frequency = x;
+  // console.log(player, x, y);
+})
+
+socket.on('tilt', (data) => {
+
+  let i = data[0]; // indice del usuario
+  let x = data[1].x; // no cambiar
+  let y = data[1].y; // no cambiar
+  let z = data[1].z; // no cambiar
+  // console.log(data[1].x);
+  // console.log(x);
+  // console.log(y);
+  // console.log(z);
+
+  sintes[i].pitch(Nexus.scale(x, 0, 1, 200, 5000))
+  sintes[i].filterf(Nexus.scale(y, -1, 1.5, 0, 1))
+  sintes[i].loop.set({
+    interval: Nexus.scale(z, 0, 1, 0.005, 1)
+  })
+
   // sintes[data[0]].harm(data[1][1].z)
   // player.synth.frequency.rampTo(x, 0.1);
   // player.synth.modulationIndex.rampTo(y, 0.1);
@@ -188,6 +251,80 @@ socket.on('position', (data) => {
   // console.log(player, x, y);
 });
 
+socket.on('delay', (data) => {
+
+  let i = data[0]; // indice del usuario
+  let x = data[1] // no cambiar
+  sintes[i].delaywet(x);
+
+  // sintes[data[0]].harm(data[1][1].z)
+  // player.synth.frequency.rampTo(x, 0.1);
+  // player.synth.modulationIndex.rampTo(y, 0.1);
+  // player.frequency = x;
+  // console.log(player, x, y);
+})
+
+socket.on('verb', (data) => {
+
+  let i = data[0]; // indice del usuario
+  let x = data[1];
+  // console.log(data);
+  sintes[i].verbwet(x);
+
+  // sintes[data[0]].harm(data[1][1].z)
+  // player.synth.frequency.rampTo(x, 0.1);
+  // player.synth.modulationIndex.rampTo(y, 0.1);
+  // player.frequency = x;
+  // console.log(player, x, y);
+})
+
+socket.on('selectF', (data) => {
+
+  let i = data[0]; // indice del usuario
+  let x = data[1];
+  sintes[i].selectFilter(x);
+
+  // sintes[data[0]].harm(data[1][1].z)
+  // player.synth.frequency.rampTo(x, 0.1);
+  // player.synth.modulationIndex.rampTo(y, 0.1);
+  // player.frequency = x;
+  // console.log(player, x, y);
+});
+
+socket.on('selectS', (data) => {
+  // console.log(data[1][1].value);
+
+  let i = data[0]; // indice del usuario
+  let x = data[1]; // no cambiar
+  // console.log(x);
+
+  sintes[i].selectSource(x);
+
+  // sintes[data[0]].harm(data[1][1].z)
+  // player.synth.frequency.rampTo(x, 0.1);
+  // player.synth.modulationIndex.rampTo(y, 0.1);
+  // player.frequency = x;
+  // console.log(player, x, y);
+});
+
+socket.on('position', (data) => {
+  // console.log(data);
+
+  let i = data[0]; // indice del usuario
+  let x = data[1].x; // no cambiar
+  let y = data[1].y; // no cambiar
+
+  sintes[i].pitch(x)
+  sintes[i].filterf(y)
+  // sintes[i].envelope(c.position.event.clicked)
+  // console.log(c.position);
+
+  // sintes[data[0]].harm(data[1][1].z)
+  // player.synth.frequency.rampTo(x, 0.1);
+  // player.synth.modulationIndex.rampTo(y, 0.1);
+  // player.frequency = x;
+  // console.log(player, x, y);
+});
 // socket.on('trigger', (data) => {
 //   console.log(player,v);
 // })
@@ -220,13 +357,13 @@ startButton.onclick = async function () {
 // -----------------------------------------------------------------------------
 
 stopButton.onclick = async function ()  {
-  
+
   if (socket.connected) {
     socket.emit('onoff');
   }
 
   if (initialized) {
-    
+
     let a = userData.filter(function(x) { return x !==0 ; });
     for (let i of a) {
       let idx = i.oscid;

@@ -3,11 +3,11 @@
 // Code for the CollidePd server
 //------------------------------------------------------------------------------
 //==============================================================================
-// 
+//
 //   CollidePd is a Networked Music Performance plaform
-// 
+//
 //   Authors:
-//       Fede Camara Halac (ffddcchh) 
+//       Fede Camara Halac (ffddcchh)
 //       Fede Ragessi (ffrm)
 //
 //==============================================================================
@@ -28,8 +28,8 @@ const MAXUSERS = 1002;
 //
 // GLOBAL - data de cada usuario - fill the array with zeros
 //
-let userData = new Array(MAXUSERS); 
-userData.fill(0); 
+let userData = new Array(MAXUSERS);
+userData.fill(0);
 
 //
 // SERVE THE HOMEPAGE
@@ -46,19 +46,19 @@ app.get('/', (req, res) => {
 // =============================================================================
 io.sockets.on('connection', function(socket) {
 
-  // ---------------------------------------------------------------------   
+  // ---------------------------------------------------------------------
   // INITIALIZE
-  // ---------------------------------------------------------------------   
+  // ---------------------------------------------------------------------
 
   //
   // 0. look for an empty slot on the GLOBAL "userData" array
   // buscar el primer lugar vacio en 'userData'
-  // 
+  //
 
   var s = userData.findIndex( (e) => e === 0 );
-  
+
   if (s >= 0) {
-    userData[s] = { 
+    userData[s] = {
       id: socket.id,
       oscid: s,
       name: '',
@@ -66,10 +66,10 @@ io.sockets.on('connection', function(socket) {
     };
 
     //
-    // 1. tell this user its id and num of players 
+    // 1. tell this user its id and num of players
     // oscid y cantidad de players
     //
-    
+
     let players = userData.filter(x => x!==0).length;
     socket.emit('connected', [s, players]);
 
@@ -78,8 +78,8 @@ io.sockets.on('connection', function(socket) {
     // (info de los usuaris conectados al momento)
     // enviando a todos los clientes toda la userdata actual
     //
-    
-    io.sockets.emit('userdata', userData); 
+
+    io.sockets.emit('userdata', userData);
 
     //
     // 3. reportar conexion en la consola del servidor
@@ -87,18 +87,18 @@ io.sockets.on('connection', function(socket) {
 
     console.log("slot:%d -- %s", s, socket.id);
 
-    // ---------------------------------------------------------------------  
-    // ---------------------------------------------------------------------  
+    // ---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
     // EVENT HANDLING
-    // ---------------------------------------------------------------------  
-    // ---------------------------------------------------------------------  
+    // ---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
 
     //
     // handle "disconnection"
     //
 
     socket.on('disconnect', function() {
-      
+
       // report to server console
       console.log("disconnecting ", s);
 
@@ -106,11 +106,11 @@ io.sockets.on('connection', function(socket) {
       userData[s] = 0;
 
       // Broadcast the new userData array
-      socket.broadcast.emit('removeuser', s); 
+      socket.broadcast.emit('removeuser', s);
 
       // Broadcast the new userData array
       socket.broadcast.emit('userdata', userData);
-      
+
     });
 
     //
@@ -125,7 +125,7 @@ io.sockets.on('connection', function(socket) {
     //
     // "userdata" array polling
     //
-    
+
     socket.on('userdata', function() {
       // send userData to requester
       socket.emit('userdata', userData);
@@ -134,16 +134,16 @@ io.sockets.on('connection', function(socket) {
     //
     // handle "chat"
     //
-    
+
     socket.on('chat', function(data) {
       // broadcast the chat message as-is
-      socket.broadcast.emit('chat',data); 
+      socket.broadcast.emit('chat',data);
     });
 
     //
     // "event" event handling
     //
-    
+
     socket.on('event', function(data) {
       const event = {
         head: data.header,
@@ -152,21 +152,49 @@ io.sockets.on('connection', function(socket) {
         id: s
       }
       // emit the event to all clients
-      io.sockets.emit('event', event); 
+      io.sockets.emit('event', event);
     });
 
     //
     // "onoff" message
     //
-    
+
     socket.on('onoff', function() {
-      socket.broadcast.emit('onoff', s); 
+      socket.broadcast.emit('onoff', s);
     });
 
     //
     // "position" message
     //
+//canales de mensajes
 
+    socket.on('loopstart', function(data) {
+      io.sockets.emit('loopstart', [s, data]);
+    })
+    socket.on('set', function(data) {
+      io.sockets.emit('set', [s, data]);
+    })
+    socket.on('tilt', function(data) {
+      io.sockets.emit('tilt', [s, data]);
+      console.log(data);
+    })
+    //Wet Delay
+    socket.on('delay', function(data) {
+      io.sockets.emit('delay', [s, data]);
+    })
+    //Wet Reverb
+    socket.on('verb', function(data) {
+      io.sockets.emit('verb', [s, data]);
+      // console.log(data);
+    })
+    //Selector de Filtro
+    socket.on('selectF', function(data) {
+      io.sockets.emit('selectF', [s, data]);
+    })
+    //Selector de Fuente
+    socket.on('selectS', function(data) {
+      io.sockets.emit('selectS', [s, data]);
+    })
     socket.on('position', function(data) {
       io.sockets.emit('position', [s, data]);
     })
@@ -175,12 +203,12 @@ io.sockets.on('connection', function(socket) {
     socket.emit("waiting");
     // for (infinito) {
     //   proba si hay lugar,
-    //   si hay lugar, 
+    //   si hay lugar,
     //   anda a la funcion de arriba
     // }
   }
 
-  
+
 
 });// end io.sockets.on
 // =============================================================================
