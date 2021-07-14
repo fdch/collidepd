@@ -1,232 +1,67 @@
 /* style.css */
-.greater-container {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto;
-  grid-column-gap: 10px;
-  grid-row-gap: 15px;
-  justify-content: stretch;
-  justify-items: stretch;
-}
-
-.tray {
-  padding: 5px;
-  margin: 10px;
-}
-
-.speed-title {
-  justify-self: stretch;
-  background-color: #92a8df;
-  grid-area: title !important;
-}
-
-.global-title {
-  justify-self: stretch;
-  background-color: #92a8df;
-  grid-column-start: 1;
-  grid-column-end: 5;
-  /* grid-area: title !important; */
-}
-
-.inc-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-template-rows: 50px;
-  grid-column-gap: 4px;
-  grid-row-gap: 4px;
-  grid-template-columns: subgrid;
-  align-items: stretch;
-}
-
-.dec-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-template-rows: 50px;
-  grid-column-gap: 4px;
-  grid-row-gap: 4px;
-  grid-template-columns: subgrid;
-  align-items: stretch;
-}
-
-.tempo-buttons{
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-template-rows: 50px;
-  grid-column-gap: 4px;
-  grid-row-gap: 4px;
-  grid-template-columns: subgrid;
-}
-
-.bottom-buttons{
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  grid-template-rows: 100px;
-  grid-column-gap: 4px;
-  grid-row-gap: 4px;
-  /* grid-template-columns: subgrid; */
-  justify-content: stretch;
-  /* grid-area: buttons; */
-}
-
-.rounded {
-  border: solid #000;
-  border-radius: 5px;
-  border-width: 1px;
-  border-color: black;
-}
-
-.spawnbutton {
-  /* margin: auto; */
-  /* width: 100%; */
-  /* border: 2px solid green;
-  padding: 20px;
-  background-color: green; */
-}
-
-#collectible-button {
-  background-color: rgb(255, 254, 155) !important;
-}
 
 body {
   font: 23px Helvetica, Arial;
 }
 
 button{
-  background-color: rgb(130, 254, 255);
   border-radius: 10px;
   padding: 10px;
 }
 
-button:hover {
-  background-color: rgb(130, 254, 255);
-  border-radius: 10px;
+#status-bar {
+  font-size:1em;
+  padding:10px;
+  display:inline;
 }
 
-button:active {
-  background-color: rgb(130, 254, 255);
-  box-shadow: 0 5px #666;
-  transform: translateY(4px);
-  border-radius: 10px;
+#chat-container {
+  display:none;
 }
-
-/* form button {
-  width: 20%;
-  background: rgb(130, 254, 255);
-  border: none;
-  padding: 0px;
-  /* margin: 10px; */
-  height: 30px;
-  /* margin:0 auto; */
-  float: left;
-  margin: 5px;
-  border-radius: 10px;
-} */
-
-#bg {
-  background: #FFF;
-  width: 100%;
-  height: 100%;
-  position: relative;
-  top: 0px;
-}
-
-
-.container{
-  margin-top: 20px;
-}
-
-.tab-pane{
-  margin-top: 15px;
-}
-
-.page-header{
-  margin-top: 20px;
-}
-
-.input-group{
-  margin-bottom: 20px;
-
-}
-
-input[type=text],
-textarea{
-  box-shadow: none;
-  -webkit-appearance:none;
-  -webkit-box-shadow: none !important;
-  -moz-box-shadow: none !important;
-  box-shadow: none !important;
-}
-
-#dm .input-group{
-  float: left;
-  padding-left: 10px;
-}
-
-#dm .input-group.first{
-  padding-left: 0px;
-}
-
-#dm .col-xs-12{
-  padding-left: 0;
-}
-
-input {
-  display: block;
-}
-ul {
-  list-style: none;
-}
-
-
 
 #bodybox {
   margin: auto;
   max-width: 550px;
-  font: 15px arial, sans-serif;
-  background-color: white;
-  /*border-style: solid;*/
-  border-width: 1px;
-  padding-top: 20px;
-  padding-bottom: 25px;
-  padding-right: 25px;
-  padding-left: 25px;
-  /*box-shadow: 5px 5px 5px grey;*/
+  font-size: 15px;
+  padding: 5px;
   border-radius: 15px;
+  border: 1px solid black;
 }
 
 #chatborder {
-  border-style: solid;
-  background-color: #f6f9f6;
-  border-width: 3px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  margin-left: 20px;
-  margin-right: 20px;
-  padding-top: 10px;
-  padding-bottom: 15px;
-  padding-right: 20px;
-  padding-left: 15px;
-  border-radius: 15px;
+  margin: 0px;
+  padding: 0px;
 }
 
-.chatlog {
-   font: 15px arial, sans-serif;
+form {
+  display:block;
 }
 
-#chat {
-  font: 17px arial, sans-serif;
-  height: 22px;
-  width: 100%;
+input {
+  height: 30px;
 }
 
-fieldset {
-  border:none;
+input[type=text] {
+  font-size: 16px;
+  width: 35%;
+  transition: width 0.2s ease-in-out;
 }
 
-/* div #control div {
-  float: left;
-  position: relative;
-} */
+input[type=text]:focus {
+  width: 75%;
+}
+
+input[type=submit]{
+  background-color: aqua;
+  width:12%;
+  font-size:12px;
+}
+
+#messages {
+  list-style: none;
+  padding:0;
+  margin:0;
+}
 
 /* Armar la estructura diseñada en la versión */
 @media screen and (orientation: portrait) {

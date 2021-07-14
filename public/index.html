@@ -54,27 +54,39 @@
 	<div id="imgdiv"></div>
 		<!-- <h1 class="headtitle">CollidePD</h1> -->
 		<!-- <h2>A websocket server for live performance</h2> -->
-		<h4>Status: <span id="status"></span></h4>
-		<h4>Player: <span id="userid"></span>
-		<h4>Total Players <span id="players">s</span></h4>
 	<nav id="navtag" class="headtitle"></nav>
 	</header>
 	<main>
 		<div id="controls">
 			<button id="start">Start</button>
 			<button id="stop">Stop</button>
-			<div id='bodybox'>
-				<div id='chatborder'>
-				<ul id="messages">
-					<li>chat here</li>
-				</ul>
-				<form id='chatbox'>
-					<fieldset class='chatlog'>
-						<input type='text' id='chat' name='chat'/>
-					</fieldset>
-	      			<input type="submit" value="Send" />
-	      		</form>
-      		</div>
+			<button id="show-chat">Chat</button>
+			<div id='status-bar'>
+				<span id="status"></span> | 
+				<span id="userid"></span> | 
+				<span id="players"></span>
+			</div>
+			<div id="chat-container">
+				<div id='bodybox'>
+					<div id='chatborder'>
+						<form id='chatbox'>
+							<input type="submit" value="Go" />
+							<input type='text' id='chat' name='chat' placeholder="Chat here ..."/>
+						</form>
+					</div>
+					<ul id="messages">
+						<li></li>
+						<li></li>
+						<li></li>
+						<li></li>
+						<li></li>
+						<li></li>
+						<li></li>
+						<li></li>
+						<li></li>
+						<li></li>
+					</ul>
+				</div>
 			</div>
 		</div>
 <!-- Acá metió mano fede -->

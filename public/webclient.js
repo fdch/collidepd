@@ -8,7 +8,9 @@ const playersTitle = document.getElementById('players');
 const statusTitle  = document.getElementById('status');
 const messages     = document.getElementById('messages');
 const chatbox      = document.getElementById('chatbox');
+const chatButton   = document.getElementById('show-chat');
 const chat         = document.getElementById('chat');
+const chatContainer= document.getElementById('chat-container');
 const userAgent    = window.navigator.userAgent;
 
 var userData       = new Array(MAXUSERS);
@@ -24,6 +26,9 @@ var now;          // Tone.now
 var CHORRO = true;
 sintes.fill(0);
 
+var colorFront = 'rgb(130, 254, 255)';
+var colorBack = 'white';
+var chatStatus = false;
 // -----------------------------------------------------------------------------
 //
 // UPDATE PLAYERS
@@ -46,14 +51,14 @@ function updatePlayers(data) {
       } else {
         console.log("Player "+idx+" is already ON.");
       }
-  };
+  }
 
 
   num_players = players.length;
 
   playersTitle.innerHTML= num_players.toString();
 
-};
+}
 
 
 // -----------------------------------------------------------------------------
@@ -62,37 +67,35 @@ function updatePlayers(data) {
 //
 // -----------------------------------------------------------------------------
 
-function addChat(e) {
+function addChat(data) {
 
   let li = document.createElement('li');
   let liapp = messages.appendChild(li);
-
+  
   if (messages.firstChild) {
     messages.removeChild(messages.firstChild);
   }
-
-  liapp.innerHTML = e;
+  console.log(data);
+  if(data.value==="") {
+    data.value = " ";
+    head.value = " ";
+  }
+  liapp.innerHTML = data.head+": "+data.value;
 }
 
 chatbox.addEventListener("submit", function(evt) {
 
   evt.preventDefault();
-
+  
   if(socket.connected) {
-
+    
     socket.emit('chat', chat.value);
-    addChat(chat.value);
+    addChat({head:s,value:chat.value});
     chat.value = '';
 
   }
-
+  
 });
-
-for (i=0;i<MAXCHATS;i++) {
-  let li = document.createElement('li');
-  let liapp = messages.appendChild(li);
-  liapp.innerHTML = '.';
-}
 
 // -----------------------------------------------------------------------------
 //
@@ -167,9 +170,11 @@ socket.on('connected', function(data) {
     playerTitle.innerHTML = s.toString();
     playersTitle.innerHTML= num_players.toString();
     // display a 'connected' message on the interface
-    statusTitle.innerHTML = 'connected';
+    statusTitle.innerHTML = 'ON';
+    startButton.style.backgroundColor=colorFront;
     console.log("Player #"+s+" of "+num_players+" connected.");
-});
+
+  });
 
 //
 // 2. "userdata" message
@@ -194,11 +199,17 @@ socket.on('removeuser', function(idx) {
 // "chat" message
 //
 
-socket.on('chat', function(e) {
-    addChat(e);
+socket.on('chat', (data) => {
+  addChat(data);
 });
-//Socket.on recibe los mensajes desde el servidor
 
+socket.on('chathist', (data) => {
+  for (let d of data) {
+    addChat(d);
+  }
+});
+
+//Socket.on recibe los mensajes desde el servidor
 
 socket.on('loopstart', (data) => {
 
@@ -206,13 +217,13 @@ socket.on('loopstart', (data) => {
   let x = data[1];
 
 
-  sintes[i].loopstart(x)
+  sintes[i].loopstart(x);
   // sintes[data[0]].harm(data[1][1].z)
   // player.synth.frequency.rampTo(x, 0.1);
   // player.synth.modulationIndex.rampTo(y, 0.1);
   // player.frequency = x;
   // console.log(player, x, y);
-})
+});
 
 socket.on('set', (data) => {
 
@@ -225,7 +236,7 @@ socket.on('set', (data) => {
   // player.synth.modulationIndex.rampTo(y, 0.1);
   // player.frequency = x;
   // console.log(player, x, y);
-})
+});
 
 socket.on('tilt', (data) => {
 
@@ -238,11 +249,13 @@ socket.on('tilt', (data) => {
   // console.log(y);
   // console.log(z);
 
+
   sintes[i].pitch(Nexus.scale(x, 0, 1, 200, 5000))
   sintes[i].filterf(Nexus.scale(y, -1, 1.5, 0, 1))
   sintes[i].loop.set({
     interval: Nexus.scale(z, 0, 1, 0.005, 1)
   })
+
 
   // sintes[data[0]].harm(data[1][1].z)
   // player.synth.frequency.rampTo(x, 0.1);
@@ -254,7 +267,7 @@ socket.on('tilt', (data) => {
 socket.on('delay', (data) => {
 
   let i = data[0]; // indice del usuario
-  let x = data[1] // no cambiar
+  let x = data[1]; // no cambiar
   sintes[i].delaywet(x);
 
   // sintes[data[0]].harm(data[1][1].z)
@@ -262,7 +275,7 @@ socket.on('delay', (data) => {
   // player.synth.modulationIndex.rampTo(y, 0.1);
   // player.frequency = x;
   // console.log(player, x, y);
-})
+});
 
 socket.on('verb', (data) => {
 
@@ -276,7 +289,7 @@ socket.on('verb', (data) => {
   // player.synth.modulationIndex.rampTo(y, 0.1);
   // player.frequency = x;
   // console.log(player, x, y);
-})
+});
 
 socket.on('selectF', (data) => {
 
@@ -314,8 +327,10 @@ socket.on('position', (data) => {
   let x = data[1].x; // no cambiar
   let y = data[1].y; // no cambiar
 
+
   sintes[i].pitch(x)
   sintes[i].filterf(y)
+
   // sintes[i].envelope(c.position.event.clicked)
   // console.log(c.position);
 
@@ -336,18 +351,23 @@ socket.on('position', (data) => {
 //
 // -----------------------------------------------------------------------------
 
-startButton.onclick = async function () {
+startButton.onclick = function () {
   if (!initialized) {
-    await Tone.start();
+    Tone.start();
     now = Tone.now();
     console.log("Context started");
     // cuando apreto start, debo inicializar los players
     // prender los sintes de todos
-    if (socket.connected) await updatePlayers(userData);
+    if (socket.connected) updatePlayers(userData);
     Tone.Transport.start();
     initialized = true;
     CHORRO = true;
   }
+
+  statusTitle.innerHTML = 'ON';
+  startButton.style.backgroundColor=colorFront;
+  stopButton.style.backgroundColor=colorBack;
+
 };
 
 // -----------------------------------------------------------------------------
@@ -356,7 +376,12 @@ startButton.onclick = async function () {
 //
 // -----------------------------------------------------------------------------
 
-stopButton.onclick = async function ()  {
+stopButton.onclick = function ()  {
+
+  statusTitle.innerHTML = 'OFF';
+
+  stopButton.style.backgroundColor=colorFront;
+  startButton.style.backgroundColor=colorBack;
 
   if (socket.connected) {
     socket.emit('onoff');
@@ -375,5 +400,17 @@ stopButton.onclick = async function ()  {
     Tone.Transport.stop();
     initialized = false;
     CHORRO = false;
+  }
+};
+
+chatButton.onclick = function () {
+  if(chatStatus) {
+    chatContainer.style.display='none';
+    chatButton.style.backgroundColor=colorBack;
+    chatStatus = false;
+  } else {
+    chatContainer.style.display='block';
+    chatButton.style.backgroundColor=colorFront;
+    chatStatus = true;
   }
 };
