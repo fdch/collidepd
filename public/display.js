@@ -1,82 +1,89 @@
+const win = window;
+const doc = document;
+const docElem = doc.documentElement;
+const body = doc.getElementsByTagName('body')[0];
+const controls = doc.getElementById('controls');
+const startButton = doc.getElementById('start');
+const stopButton = doc.getElementById('stop');
+const playerTitle = doc.getElementById('userid');
+const playersTitle = doc.getElementById('players');
+const statusTitle = doc.getElementById('status');
+const messages = doc.getElementById('messages');
+const chatbox = doc.getElementById('chatbox');
+const chatButton = doc.getElementById('show-chat');
+const chat = doc.getElementById('chat');
+const chatContainer = doc.getElementById('chat-container');
+const userAgent = win.navigator.userAgent;
+const x = win.innerWidth || docElem.clientWidth || body.clientWidth;
+const y = win.innerHeight || docElem.clientHeight || body.clientHeight;
 
-const startButton  = document.getElementById('start');
-const stopButton   = document.getElementById('stop');
-const playerTitle  = document.getElementById('userid');
-const playersTitle = document.getElementById('players');
-const statusTitle  = document.getElementById('status');
-const messages     = document.getElementById('messages');
-const chatbox      = document.getElementById('chatbox');
-const chatButton   = document.getElementById('show-chat');
-const chat         = document.getElementById('chat');
-const chatContainer= document.getElementById('chat-container');
-const userAgent    = window.navigator.userAgent;
-
-var win = window,
-    doc = document,
-    docElem = doc.documentElement,
-    body = doc.getElementsByTagName('body')[0],
-    x = win.innerWidth || docElem.clientWidth || body.clientWidth,
-    y = win.innerHeight|| docElem.clientHeight|| body.clientHeight;
+const orientMessage = `Please LOCK the orientation in PORTRAIT MODE.\n
+Then, close this window and refresh the page.\n
+Happy playing.`;
 
 var orient = "Browser";
 
-if (typeof window.orientation !== 'undefined') { 
-  orient = window.orientation;
+if (typeof window.orientation !== 'undefined') {
+    orient = window.orientation;
 }
 
 if (orient === "Browser" | orient === 0) {
-  console.log("User in Portrait mode or on a Browser");
+    console.log("User in Portrait mode or on a Browser");
 } else {
-  window.alert(`Please LOCK the orientation in PORTRAIT MODE.\n
-Then, close this window and refresh the page.\n
-Happy playing.`
-);
+    window.alert(orientMessage);
 }
+const pad = 2;
+body.style.padding = pad * 2 + "px";
+let dw = x - pad * 2;
+// clip width to max out at 500 or min at 200
+const displayW = dw > 500 ? 500 : dw < 200 ? 200 : dw;
+const headHeight = 40;
 
-var w = 0, h = 0;
-
-if (x >= y) {
-    w = y;
-    h = x;
-} else {
-    w = x;
-    h = y;
-}
-
-const pad = 4, mgn = 4;
-const elements = ['header','main','footer'];
-
-
-let dw = w - pad * 2 - 4;
-const displayW = dw > 500 ? 500 : dw < 200 ? 200: dw;
-
-const headHeight = 45;
-const displayH = h - headHeight * 2 - 4;
-
-for (let e of elements){
+// nexus ui buttons
+const nxB = headHeight - pad;
+const displayH = y - headHeight * 2 - pad * 2;
+const elements = ['header', 'main', 'footer'];
+console.log(x, y);
+for (let e of elements) {
     let t = document.getElementsByTagName(e)[0];
     // reset paddings and margins
     t.style.padding = 0;
     t.style.margin = 0;
     // adjust width
-    t.style.width   = displayW-pad + "px";
+    t.style.width = displayW - pad + "px";
     // adjust height (main is different)
-    if(e === 'main') {
+    if (e === 'main') {
         t.style.height = displayH + "px";
     } else {
-        t.style.height = headHeight-pad + "px";
+        t.style.height = headHeight - pad + "px";
     }
 }
 const ctrlDivs = [
-    document.getElementById('continferior'),
-    document.getElementById('contposition'),
     document.getElementById('contsuperior'),
     document.getElementById('controlsuperior'),
-    document.getElementById('controlinferior'),
-    document.getElementById('controlposition')
+    document.getElementById('contposition'),
+    document.getElementById('controlposition'),
+    document.getElementById('continferior'),
+    document.getElementById('controlinferior')
 ];
 
 for (let e of ctrlDivs) {
     e.style.position = "relative";
-    e.style.width = displayW-pad + "px";
+    e.style.width = displayW - pad + "px";
+    e.style.marginTop = pad + "px";
 }
+//top div
+ctrlDivs[0].style.height = headHeight * 2 + "px";
+ctrlDivs[1].style.height = headHeight * 2 + "px";
+//mid div
+ctrlDivs[2].style.height = displayW - pad + "px";
+ctrlDivs[3].style.height = displayW - pad + "px";
+//bottom div
+ctrlDivs[4].style.height = headHeight - pad + "px";
+ctrlDivs[5].style.height = headHeight - pad + "px";
+
+for (let e of document.getElementsByTagName("input")) {
+    e.style.height = headHeight - pad;
+}
+
+chatContainer.style.top = headHeight + "px";

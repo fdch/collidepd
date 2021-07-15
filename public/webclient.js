@@ -85,6 +85,7 @@ startButton.onclick = function () {
   }
 
   statusTitle.innerHTML = 'ON';
+  body.style.background = "#9bfcf7";
   startButton.style.backgroundColor=colorFront;
   stopButton.style.backgroundColor=colorBack;
 
@@ -99,6 +100,7 @@ startButton.onclick = function () {
 stopButton.onclick = function ()  {
 
   statusTitle.innerHTML = 'OFF';
+  body.style.background = "white";
 
   stopButton.style.backgroundColor=colorFront;
   startButton.style.backgroundColor=colorBack;

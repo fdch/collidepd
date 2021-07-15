@@ -2,40 +2,34 @@ body {
   font-family: Helvetica, Arial;
   font-size: 1.2em;
   margin: 0 auto;
-  padding:8px;
-  overflow:hidden;
-}
-
-header, main, footer { 
-  position:relative;
-  float:left;
-  border: 1px solid black;
+  /* overflow: hidden; */
 }
 
 #chat-container {
-  display:none;
-  position:absolute;
-  top:40px;
-  left:0;
-  z-index:100;
-  background-color:lightgrey;
+  display: none;
+  position: absolute;
+  z-index: 100;
+  background-color: lightgrey;
 }
 
-button{
+button, #filterSelect{
   border-radius: 10px;
   padding: 10px;
 }
 
 #status-bar {
-  display:inline;
+  display: inline;
+  padding:8px;
+  border-radius:4px;
+  background:lightgrey;
+  text-align:right;
+  float:right;
 }
 
 .status {
-  border-right:1px solid black;
+  border-right: 1px solid black;
   padding-right: 10px;
 }
-
-
 
 #bodybox {
   margin: auto;
@@ -52,11 +46,7 @@ button{
 }
 
 form {
-  display:block;
-}
-
-input {
-  height: 30px;
+  display: block;
 }
 
 input[type=text] {
@@ -69,31 +59,22 @@ input[type=text]:focus {
   width: 75%;
 }
 
-input[type=submit]{
+input[type=submit] {
   background-color: aqua;
-  width:12%;
-  font-size:12px;
+  width: 12%;
+  font-size: 12px;
 }
 
 #messages {
   list-style: none;
-  padding:0;
-  margin:0;
+  padding: 0;
+  margin: 0;
 }
-/* 
-#continferior, #contposition, #contsuperior{
-  position:relative;
-  overflow:hidden;
-  width:100%;
-} */
-/* 
-#controlsuperior, #controlposition, #controlinferior {
-width:100%;
-} */
 
+#contsuperior div, #continferior div {
+  display:inline;
+}
 
-#controlsuperior div, #controlinferior div {
-    float: left;
-  position: relative;
-  padding:2px;
+#continferior div{
+  padding-right:20px;
 }

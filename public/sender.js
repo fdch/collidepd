@@ -23,9 +23,11 @@ c.verb.on('change', function (v) {
     if (socket.connected && CHORRO) socket.emit('verb', v);
 });
 
-c.selectF.on('change', function (v) {
-    if (socket.connected && CHORRO) socket.emit('selectF', v);
+c.selectF.addEventListener('change', function() {
+    if (socket.connected && CHORRO) socket.emit('selectF', this.value);
 });
+
+
 
 c.selectS.on('change', function (v) {
     if (socket.connected && CHORRO) socket.emit('selectS', v);

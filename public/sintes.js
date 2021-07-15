@@ -59,6 +59,7 @@ class Player {
       this.synth.triggerAttackRelease(this.freq);
       // console.log(this.loop.interval);
     }, 1);
+
     Tone.Transport.start();
 
     // The Player's Main Channel effects
@@ -90,10 +91,8 @@ class Player {
   }
 
   pitch(f) {
-    // console.log(f);
     this.freq = f;
     this.synth.triggerAttackRelease(f);
-    // this.synth.frequency.rampTo(f, 0.1);
   }
 
   // envelope(f) {
@@ -105,12 +104,12 @@ class Player {
   //     console.log('Levantaste el dedo');
   //   }
   // }
+
   detune(f) {
     this.synth.detune.rampTo(f, 0.1);
   }
 
   filterf(f) {
-    // console.log(f);
     this.filter.frequency.rampTo(f, 0.1);
   }
 
@@ -123,9 +122,7 @@ class Player {
   }
 
   selectFilter(f) {
-    this.filter.set({
-      type: f.value
-    });
+    this.filter.set({type: filterOptions[f]});
   }
 
   selectSource(f) {
@@ -154,8 +151,9 @@ class Player {
     }
   }
 
-  // destroyer() {
-  // console.log(Disconnecting synth:  + this.oscid);
-  // ramp to -Infinity in 30 seconds, and out.
-  // this.synth.dispose();
+  destroyer() {
+    // console.log(Disconnecting synth:  + this.oscid);
+    // ramp to -Infinity in 30 seconds, and out.
+    this.synth.dispose();
+  }
 }
