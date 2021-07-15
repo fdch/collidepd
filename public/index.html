@@ -4,67 +4,53 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
 	<title>CollidePD</title>
 	<meta property="og:title" content="CollidePD" />
 	<meta property="og:locale" content="en_US" />
-
 	<meta name="@type" content="WebSite">
 	<meta name="url" content="https://fdch.github.io/collidepd">
-	<meta name="headline" content="Fede Cámara Halac [fdch]">
-
+	<meta name="headline" content="CollidePd">
 	<meta name="twitter:description" content="a websocket server for live performance">
 	<meta property="og:description" content="a websocket server for live performance">
-
 	<meta name="description" content="a websocket server for live performance" />
-
 	<meta property="og:description" content="a websocket server for live performance" />
-
-
-	<link rel="fluid-icon" href="https://raw.githubusercontent.com/fdch/fdch.github.io/master/img/imgone-76.png" type="image/png" title="fdch">
-	<link rel="icon" href="https://raw.githubusercontent.com/fdch/fdch.github.io/master/img/imgone-76.ico" type="image/ico" title="fdch">
-
+	<link rel="fluid-icon" href="" type="image/png" title="fdch">
+	<link rel="icon" href="" type="image/ico" title="fdch">
 	<link rel="canonical" href="https://fdch.github.io/collidepd" />
 	<meta property="og:url" content="https://fdch.github.io/collidepd" />
 	<meta property="og:site_name" content="CollidePd" />
-
-	<meta property="og:image"    content="https://raw.githubusercontent.com/fdch/fdch.github.io/master/img/imgone.png">
-
+	<meta property="og:image"    content="">
 	<meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="500">
     <meta property="og:image:height" content="500">
-
-	<script type="application/ld+json" src="data/global.json"></script>
-
-	<meta name="keywords"        content="websocket, network, performance, music, osc, socket.io">
-	<meta name="robots"          content="index,follow">
-
+	<meta name="keywords" content="websocket, network, performance, music, osc, socket.io">
+	<meta name="robots" content="index,follow">
 	<script src="socket.io/socket.io.js"></script>
-    <script src="jquery-1.11.1.js"></script>
-	<script language="javascript" type="text/javascript" src="p5.min.js"></script>
 	<script language="javascript" type="text/javascript" src="Tone.js"></script>
 	<script language="javascript" type="text/javascript" src="NexusUI.js"></script>
-
+	<link rel="manifest" href="manifest.json">
 	<link rel="stylesheet" type="text/css" href="style.css">
-
 </head>
-
 <body>
-	<header id="menuheader">
-	<div id="imgdiv"></div>
-		<!-- <h1 class="headtitle">CollidePD</h1> -->
-		<!-- <h2>A websocket server for live performance</h2> -->
-	<nav id="navtag" class="headtitle"></nav>
-	</header>
-	<main>
+	<header>
 		<div id="controls">
 			<button id="start">Start</button>
 			<button id="stop">Stop</button>
 			<button id="show-chat">Chat</button>
+			<select id="filterSelect">
+				<option	value="0">Lowpass</option>
+				<option	value="1">Highpass</option>
+				<option	value="2">Bandpass</option>
+				<option	value="3">Lowshelf</option>
+				<option	value="4">Highshelf</option>
+				<option	value="5">Notch</option>
+				<option	value="6">Allpass</option>
+				<option	value="7">Peaking</option>
+			</select>
 			<div id='status-bar'>
-				<span id="status"></span> | 
-				<span id="userid"></span> | 
-				<span id="players"></span>
+				<span class="status"id="status"></span>
+				<span class="status"id="userid"></span>
+				<span class="status"id="players"></span>
 			</div>
 			<div id="chat-container">
 				<div id='bodybox'>
@@ -75,40 +61,36 @@
 						</form>
 					</div>
 					<ul id="messages">
-						<li></li>
-						<li></li>
-						<li></li>
-						<li></li>
-						<li></li>
-						<li></li>
-						<li></li>
-						<li></li>
-						<li></li>
-						<li></li>
+						<li></li><li></li><li></li><li></li><li></li>
+						<li></li><li></li><li></li><li></li><li></li>
 					</ul>
 				</div>
 			</div>
 		</div>
-<!-- Acá metió mano fede -->
-    <div id="contsuperior">
-        <div id="controlsuperior"></div>
-      </div>
-
-      <div id="continferior">
-        <div id="controlinferior"></div>
-      </div>
-		<!-- <div id="panel">
-			<div id="control"></div>
-		</div> -->
-    <!-- Hasta acá -->
-		<div id="data">
+	</header>
+	<main>
+		<!-- Acá metió mano fede -->
+		<div id="contsuperior">
+			<div id="controlsuperior"></div>
 		</div>
+		<div id="contposition">
+			<div id="controlposition"></div>
+		</div>
+		<div id="continferior">
+			<div id="controlinferior"></div>
+		</div>
+		<!-- Hasta acá -->
 	</main>
-	<footer></footer>
+	<footer>
+		<button id="instructions">Intructions</button>
+	</footer>
 </body>
-
 <!-- load our stuff -->
+<script type="text/javascript" src="display.js"></script>
+<script type="text/javascript" src="controles.js"></script>
 <script type="text/javascript" src="sintes.js"></script>
 <script type="text/javascript" src="webclient.js"></script>
-
+<script type="text/javascript" src="client.js"></script>
+<script type="text/javascript" src="receiver.js"></script>
+<script type="text/javascript" src="sender.js"></script>
 </html>

@@ -177,16 +177,17 @@ io.sockets.on('connection', function(socket) {
     });
 
     //
-    // "position" message
+    // canales de mensajes
     //
-//canales de mensajes
-
+    //Loop Start
     socket.on('loopstart', function(data) {
       io.sockets.emit('loopstart', [s, data]);
     });
+    //Set?
     socket.on('set', function(data) {
       io.sockets.emit('set', [s, data]);
     });
+    //Tilt
     socket.on('tilt', function(data) {
       io.sockets.emit('tilt', [s, data]);
 
@@ -211,6 +212,7 @@ io.sockets.on('connection', function(socket) {
     socket.on('selectS', function(data) {
       io.sockets.emit('selectS', [s, data]);
     });
+    //Position
     socket.on('position', function(data) {
       io.sockets.emit('position', [s, data]);
     });
