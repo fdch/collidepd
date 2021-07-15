@@ -46,12 +46,12 @@ class Control {
     this.position = new Nexus.Add.Position(controlpos, {
       'size': [this.posSize - pad, this.posSize - pad],
       'mode': 'absolute', // absolute or relative
-      'x': 300, // initial x value
-      'minX': 100,
+      'x': 60, // initial x value
+      'minX': 60,
       'maxX': 5000,
       'stepX': 1,
-      'y': 300, // initial y value
-      'minY': 100,
+      'y': 60, // initial y value
+      'minY': 60,
       'maxY': 5000,
       'stepY': 0
     });
@@ -65,7 +65,7 @@ class Control {
     //Randomizer all
     this.set = new Nexus.Add.Button(controlinf, { ////Random todo
       'size': [nxB, nxB],
-      'mode': 'toggle',
+      'mode': 'button',
       'state': false
     });
 

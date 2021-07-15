@@ -18,16 +18,12 @@ var colorFront = 'rgb(130, 254, 255)';
 var colorBack = 'white';
 var chatStatus = false;
 
-
-
 // -----------------------------------------------------------------------------
 //
 // CHAT ROUTINES
 //
 // -----------------------------------------------------------------------------
-
-function addChat(data) {
-  
+function addChat(data) {  
   if( data.value !== "" && data.head >= 0 ) {
     if (messages.firstChild) 
       messages.removeChild(messages.firstChild);
@@ -36,41 +32,29 @@ function addChat(data) {
     let liapp = messages.appendChild(li);
     liapp.innerHTML = data.head + ": " + data.value;
   }
- 
 }
-
 chatbox.addEventListener("submit", function(evt) {
-
   evt.preventDefault();
-  
   if(socket.connected) {
-    
     socket.emit('chat', chat.value);
     addChat({head:s,value:chat.value});
     chat.value = '';
-
   }
-  
 });
-
 // -----------------------------------------------------------------------------
 //
 // START THE SOCKET
 //
 // -----------------------------------------------------------------------------
-
 socket = io({
   transports: ['websocket'],
   autoConnect: true
 });
-
-
 // -----------------------------------------------------------------------------
 //
 // START BUTTON
 //
 // -----------------------------------------------------------------------------
-
 startButton.onclick = function () {
   if (!initialized) {
     Tone.start();
@@ -83,23 +67,17 @@ startButton.onclick = function () {
     initialized = true;
     CHORRO = true;
   }
-
-  statusTitle.innerHTML = 'ON';
   body.style.background = "#9bfcf7";
   startButton.style.backgroundColor=colorFront;
   stopButton.style.backgroundColor=colorBack;
-
 };
-
 // -----------------------------------------------------------------------------
 //
 // STOP BUTTON
 //
 // -----------------------------------------------------------------------------
-
 stopButton.onclick = function ()  {
 
-  statusTitle.innerHTML = 'OFF';
   body.style.background = "white";
 
   stopButton.style.backgroundColor=colorFront;
