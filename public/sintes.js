@@ -1,3 +1,4 @@
+
 // The Destination "DAC"
 const dac = new Tone.Channel({
   volume: -Infinity,
@@ -6,6 +7,7 @@ const dac = new Tone.Channel({
 }).toDestination();
 
 // The Player's main Synth:
+
 class Player {
 
   constructor() {
@@ -58,6 +60,7 @@ class Player {
       this.pitch(this.freq);
       this.synth.triggerAttackRelease(this.freq);
       // console.log(this.loop.interval);
+
     }, 1);
 
     Tone.Transport.start();
@@ -69,6 +72,7 @@ class Player {
       delayTime: '2n',
       feedback: 0.5
     });
+
 
     this.verb = new Tone.Reverb().connect(this.filter);
     // this.channelfx = new Tone.channel()connect(dac);
