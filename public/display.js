@@ -7,7 +7,6 @@ const startButton = doc.getElementById('start');
 const stopButton = doc.getElementById('stop');
 const playerTitle = doc.getElementById('userid');
 const playersTitle = doc.getElementById('players');
-const statusTitle = doc.getElementById('status');
 const messages = doc.getElementById('messages');
 const chatbox = doc.getElementById('chatbox');
 const chatButton = doc.getElementById('show-chat');
@@ -16,12 +15,22 @@ const chatContainer = doc.getElementById('chat-container');
 const userAgent = win.navigator.userAgent;
 const x = win.innerWidth || docElem.clientWidth || body.clientWidth;
 const y = win.innerHeight || docElem.clientHeight || body.clientHeight;
-
+// console.log(x, y);
 const orientMessage = `Please LOCK the orientation in PORTRAIT MODE.\n
 Then, close this window and refresh the page.\n
 Happy playing.`;
 
 var orient = "Browser";
+const pad = 2;
+let dw = x - pad * 2;
+// clip width to max out at 720 or min at 200
+const displayW = dw > 720 ? 720 : dw < 200 ? 200 : dw;
+// the top control div in header
+const headHeight = 40;
+// nexus ui buttons
+const nxB = headHeight - pad;
+const displayH = y - headHeight * 2 - pad * 2;
+const elements = ['header', 'main', 'footer'];
 
 if (typeof window.orientation !== 'undefined') {
     orient = window.orientation;
@@ -32,18 +41,9 @@ if (orient === "Browser" | orient === 0) {
 } else {
     window.alert(orientMessage);
 }
-const pad = 2;
+// body's margin
 body.style.padding = pad * 2 + "px";
-let dw = x - pad * 2;
-// clip width to max out at 500 or min at 200
-const displayW = dw > 500 ? 500 : dw < 200 ? 200 : dw;
-const headHeight = 40;
 
-// nexus ui buttons
-const nxB = headHeight - pad;
-const displayH = y - headHeight * 2 - pad * 2;
-const elements = ['header', 'main', 'footer'];
-console.log(x, y);
 for (let e of elements) {
     let t = document.getElementsByTagName(e)[0];
     // reset paddings and margins

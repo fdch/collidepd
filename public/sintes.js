@@ -17,13 +17,13 @@ class Player {
     this.synth = new Tone.MonoSynth({
       detune: 0, //cents
       portamento: 0,
-      volume: 0,
+      volume: -6,
       envelope: {
-        attack: 0.1,
+        attack: 0.01,
         attackCurve: "linear",
         decay: 0.7,
         decayCurve: "exponential",
-        release: 1,
+        release: 0.8,
         releaseCurve: "exponential",
         sustain: 0
       },
@@ -55,12 +55,8 @@ class Player {
 
     //Loop
     this.loop = new Tone.Loop((time) => {
-      // channel.pan.rampTo(Nexus.rf(-1,1), vel * 0.1);
-      // // vel = Nexus.rf(0.1, 1);
       this.pitch(this.freq);
       this.synth.triggerAttackRelease(this.freq);
-      // console.log(this.loop.interval);
-
     }, 1);
 
     Tone.Transport.start();
