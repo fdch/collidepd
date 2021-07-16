@@ -5,9 +5,9 @@ const options = [
   'sine',
   'sawtooth',
   'square',
+  'triangle',
   'pwm',
   'pulse',
-  'triangle'
 ];
 const filterOptions = [
   'lowpass',
@@ -39,7 +39,7 @@ class Control {
       'numberOfButtons': 6,
       'active': 0
     });
-    
+
     //Start Loop
     this.posSize = displayW <= displayH ? displayW : displayH;
 
@@ -67,6 +67,14 @@ class Control {
       'size': [nxB, nxB],
       'mode': 'button',
       'state': false
+    });
+
+    this.bpm = new Nexus.Add.Dial(controlinf, {
+      'size': [nxB, nxB],
+      'min': 0.005,
+      'max': 1,
+      'step': 0,
+      'value': 1
     });
 
     this.delay = new Nexus.Add.Dial(controlinf, {

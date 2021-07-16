@@ -30,6 +30,12 @@ socket.on('delay', (data) => {
     sintes[i].delaywet(x);
 });
 
+socket.on('bpm', (data) => {
+    let i = data[0]; // indice del usuario
+    let x = data[1]; // valor
+    sintes[i].bpm(x);
+});
+
 socket.on('verb', (data) => {
     let i = data[0];
     let x = data[1];
@@ -55,5 +61,6 @@ socket.on('position', (data) => {
 
     sintes[i].pitch(x);
     sintes[i].filterf(y);
+    sintes[i].lfopan(y);
     // sintes[i].envelope(c.position.event.clicked)
 });
