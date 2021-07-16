@@ -15,9 +15,14 @@ c.tilt.on('change', function (v) {
     if (socket.connected && CHORRO) socket.emit('tilt', v);
 });
 
+c.bpm.on('change', function (v) {
+  if (socket.connected && CHORRO) socket.emit('bpm', v);
+});
+
 c.delay.on('change', function (v) {
     if (socket.connected && CHORRO) socket.emit('delay', v);
 });
+
 
 c.verb.on('change', function (v) {
     if (socket.connected && CHORRO) socket.emit('verb', v);
@@ -26,8 +31,6 @@ c.verb.on('change', function (v) {
 c.selectF.addEventListener('change', function() {
     if (socket.connected && CHORRO) socket.emit('selectF', this.value);
 });
-
-
 
 c.selectS.on('change', function (v) {
     if (socket.connected && CHORRO) socket.emit('selectS', v);

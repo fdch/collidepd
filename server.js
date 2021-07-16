@@ -191,6 +191,10 @@ io.sockets.on('connection', function(socket) {
     socket.on('tilt', function(data) {
       io.sockets.emit('tilt', [s, data]);
     });
+    //Bpm Control
+    socket.on('bpm', function(data) {
+      io.sockets.emit('bpm', [s, data]);
+    });
     //Wet Delay
     socket.on('delay', function(data) {
       io.sockets.emit('delay', [s, data]);
