@@ -1,4 +1,0 @@
-[submodule "collidepd-client"]
-	path = collidepd-client
-	url = https://github.com/fdch/collidepd-client.git
-    
