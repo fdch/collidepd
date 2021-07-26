@@ -71,7 +71,7 @@ class Control {
 
     this.bpm = new Nexus.Add.Dial(controlinf, {
       'size': [nxB, nxB],
-      'min': 0.005,
+      'min': 0.1,
       'max': 1,
       'step': 0,
       'value': 1
@@ -82,7 +82,7 @@ class Control {
       'min': 0,
       'max': 1,
       'step': 0,
-      'value': 0.5
+      'value': 0.125
     });
 
     this.verb = new Nexus.Add.Dial(controlinf, {
@@ -90,7 +90,7 @@ class Control {
       'min': 0,
       'max': 1,
       'step': 0,
-      'value': 0.5
+      'value': 0.125
     });
 
     this.tilt = new Nexus.Add.Tilt(controlinf, {
