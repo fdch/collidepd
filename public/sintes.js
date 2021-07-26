@@ -66,8 +66,8 @@ class Player {
     this.filter = new Tone.Filter(200, "lowpass");
     this.dist = new Tone.Distortion(0.8);
     this.fdelay = new Tone.FeedbackDelay({
-      delayTime: '2n',
-      feedback: 0.5
+      delayTime: 0.125,
+      feedback: 0.1
     }).connect(dac);
 
 
@@ -109,7 +109,7 @@ class Player {
   }
 
   lfopan(f) {
-    var pan = Nexus.scale(f, 60, 5000, 0.2, 10)
+    var pan = Nexus.scale(f, 60, 5000, 0.01, 0.5)
     this.lfo.frequency.rampTo(pan, 1);
   }
 
@@ -121,7 +121,7 @@ class Player {
   filterf(f) {
     this.lfofilter.frequency.rampTo(f, 0.1);
   }
-
+s
   delaywet(f) {
     this.fdelay.wet.rampTo(f, 0.1);
   }
@@ -149,13 +149,13 @@ class Player {
 
   setrandom(f) {
     if (f) {
-      this.fdelay.delayTime.linearRampTo(Nexus.rf(0.005, 1), Nexus.rf(0.1, 1));
-      this.fdelay.feedback.linearRampTo(Nexus.rf(0.005, 1), Nexus.rf(0.1, 1));
+      this.fdelay.delayTime.linearRampTo(Nexus.rf(0.05, 0.5), Nexus.rf(0.5, 3));
+      this.fdelay.feedback.linearRampTo(Nexus.rf(0.05, 1), Nexus.rf(0.5, 3));
       this.verb.decay = Nexus.rf(2, 10);
       // this.loop.interval = Nexus.rf(0.005, 0.1);
     } else {
-      this.fdelay.delayTime.linearRampTo(Nexus.rf(0.01, 1), Nexus.rf(0.1, 1));
-      this.fdelay.feedback.linearRampTo(Nexus.rf(0.01, 1), Nexus.rf(0.1, 1));
+      this.fdelay.delayTime.linearRampTo(Nexus.rf(0.05, 0.5), Nexus.rf(0.5, 3));
+      this.fdelay.feedback.linearRampTo(Nexus.rf(0.05, 1), Nexus.rf(0.5, 3));
       this.verb.decay = Nexus.rf(2, 10);
       // this.loop.interval = Nexus.rf(0.005, 0.1);
     }
