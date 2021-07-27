@@ -21,6 +21,7 @@ Then, close this window and refresh the page.\n
 Happy playing.`;
 
 var orient = "Browser";
+var allowMotion = false;
 const pad = 2;
 let dw = x - pad * 2;
 // clip width to max out at 720 or min at 200

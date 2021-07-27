@@ -3,7 +3,7 @@
 
 // testing iOS 13 motion permission
 function askForPermission() {
-    let permission = false;
+    let p = false;
     // window.alert("Asking for permissions");
     // Guard against reference erros by checking that DeviceMotionEvent is defined
     if (typeof DeviceMotionEvent !== 'undefined' &&
@@ -13,14 +13,14 @@ function askForPermission() {
         DeviceMotionEvent.requestPermission()
         .then(permissionState => {
         if (permissionState === 'granted') {
-            permission = true;
+            p = true;
         } else {
             // user has not give permission for motion. Pretend device is laptop
-            permission = false;
+            p = false;
         }
         // NOW we can play sound
         // Tone.Transport.start(ToneMotion.delayBeforePlaying);
-            return permission;
+            return p;
         })
         .catch(console.error);
     } else {
@@ -31,12 +31,12 @@ function askForPermission() {
         // window.addEventListener("devicemotion", handleMotionEvent, true);
         // But wait! My laptop sometimes says it reports motion but doesn't. Check for that case below.
         // beginMotionDetection();
-            permission = true;
+            p = true;
         }
         else {
         // ToneMotion.status = "deviceDoesNotReportMotion";
-            permission = false;
+            p = false;
         }
-        return permission;
+        return p;
     }
 }
