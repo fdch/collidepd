@@ -57,6 +57,7 @@ socket = io({
 // -----------------------------------------------------------------------------
 startButton.onclick = function () {
   if (!initialized) {
+    if ( orient !== "Browser" ) allowMotion = askForPermission();
     Tone.start();
     now = Tone.now();
     console.log("Context started");
