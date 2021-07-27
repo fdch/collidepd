@@ -4,7 +4,9 @@ body {
   margin: 0 auto;
   /* overflow: hidden; */
 }
-
+#show-chat {
+  border:1px inset black;
+}
 #chat-container {
   display: none;
   position: absolute;

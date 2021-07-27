@@ -113,5 +113,7 @@ chatButton.onclick = function () {
     chatContainer.style.display='block';
     chatButton.style.backgroundColor=colorFront;
     chatStatus = true;
+    chatButton.style.borderWidth = 1 + "px";
+    chatButton.style.fontWeight = "normal";
   }
 };

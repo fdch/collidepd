@@ -83,6 +83,17 @@ socket.on('removeuser', function (idx) {
 
 socket.on('chat', (data) => {
     addChat(data);
+    // this implements a notification with changes on the chat button
+    chatButton.style.borderWidth = 3 + "px";
+    chatButton.style.fontWeight = "bold";
+    if(chatStatus) {
+        // only revert changes if the window is turned on
+        setInterval( () => {
+            chatButton.style.borderWidth = 1 + "px";
+            chatButton.style.fontWeight = "normal";
+        }, 600);
+    }
+    // else revert them when user clicks the button (webclient.js:116)
 });
 
 socket.on('chathist', (data) => {
