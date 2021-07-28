@@ -117,3 +117,25 @@ chatButton.onclick = function () {
     chatButton.style.fontWeight = "normal";
   }
 };
+let intStatus = 0;
+instButton.onclick = function () {
+  if(intStatus===0) {
+    appMain.style.display='block';
+    instDivSp.style.display='none';
+    instDiv.style.display='none';
+  } else if (intStatus===1) {
+    appMain.style.display='none';
+    instDivSp.style.display='block';
+    instDiv.style.display='none';
+  } else if (intStatus===2) {
+    appMain.style.display='none';
+    instDivSp.style.display='none';
+    instDiv.style.display='block';
+  } else {
+    intStatus=0;
+    return;
+  }
+  intStatus += 1;
+};
+
+

@@ -18,7 +18,7 @@ socket.on('connected', function (data) {
     playerTitle.innerHTML = s.toString();
     playersTitle.innerHTML = num_players.toString();
     // display a 'connected' message on the interface
-    statusTitle.innerHTML = 'ON';
+    // statusTitle.innerHTML = 'ON';
     startButton.style.backgroundColor = colorFront;
     console.log("Player #" + s + " of " + num_players + " connected.");
 
