@@ -26,6 +26,7 @@ Happy playing.`;
 
 var orient = "Browser";
 var allowMotion = false;
+var deviceIsAndroid;
 const pad = 2;
 let dw = x - pad * 2;
 // clip width to max out at 720 or min at 200
@@ -40,7 +41,12 @@ const elements = ['header', 'main', 'footer'];
 if (typeof window.orientation !== 'undefined') {
     orient = window.orientation;
 }
-
+if (userAgent.match(/Android/i)) {
+    deviceIsAndroid = true;
+  }
+  else {
+    deviceIsAndroid = false;
+  }
 if (orient === "Browser" | orient === 0) {
     console.log("User in Portrait mode or on a Browser");
 } else {

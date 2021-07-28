@@ -97,11 +97,24 @@ class Control {
       'size': [nxB, nxB]
     });
 
+    // this.minx = Number.POSITIVE_INFINITY;
+    // this.miny = Number.POSITIVE_INFINITY;
+    // this.minz = Number.POSITIVE_INFINITY;
+    // this.maxx = Number.NEGATIVE_INFINITY;
+    // this.maxy = Number.NEGATIVE_INFINITY;
+    // this.maxz = Number.NEGATIVE_INFINITY;
 
     this.tilt.active = false;
 
     //
     // // create a meter on the destination node
     // this.meter = new Nexus.Add.Meter(control).connect(dac);
+  }
+  getTilt(v) {
+    // let nv = v;
+    // if (deviceIsAndroid) {
+    // } else {
+    // }
+    return v;
   }
 }

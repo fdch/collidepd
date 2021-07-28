@@ -1,23 +1,10 @@
-const c            = new Control();
-const MAXUSERS     = 1002;
-const MAXCHATS     = 10;
-var userData       = new Array(MAXUSERS);
-var sintes         = new Array(MAXUSERS);
-var initialized    = false;
+// -----------------------------------------------------------------------------
+//
+// USER CONTROLS
+//
+// -----------------------------------------------------------------------------
 
-var s;            // the client's osc id
-var num_players;  // the number of connected players
-var players;      // the array of connected players
-
-var socket;       // the socket
-var now;          // Tone.now
-// var dac;          // DAC channel
-var CHORRO = true;
-sintes.fill(0);
-
-var colorFront = 'rgb(130, 254, 255)';
-var colorBack = 'white';
-var chatStatus = false;
+const c = new Control();
 
 // -----------------------------------------------------------------------------
 //
@@ -58,25 +45,14 @@ socket = io({
 // -----------------------------------------------------------------------------
 startButton.onclick = function () {
   if (!initialized) {
-
     if ( orient !== "Browser" ) allowMotion = askForPermission();
-    Tone.setContext(new Tone.Context({ latencyHint : "balanced" }))
     Tone.start();
-    now = Tone.now();
-    // dac = new Tone.Channel({
-    //   volume:-Infinity
-    // }).toDestination();
-    console.log("Context started");
-    // cuando apreto start, debo inicializar los players
-    // prender los sintes de todos
-    if (socket.connected) updatePlayers(userData);
-    Tone.Transport.start();
+    Tone.setContext(new Tone.Context({ latencyHint : "balanced" }));
     initialized = true;
-    CHORRO = true;
   }
-  body.style.background = "#9bfcf7";
-  startButton.style.backgroundColor=colorFront;
-  stopButton.style.backgroundColor=colorBack;
+    body.style.background = "#9bfcf7";
+    startButton.style.backgroundColor=colorFront;
+    stopButton.style.backgroundColor=colorBack;
 };
 // -----------------------------------------------------------------------------
 //
@@ -143,5 +119,31 @@ instButton.onclick = function () {
   }
   intStatus += 1;
 };
+// -----------------------------------------------------------------------------
+//
+// CHECK FOR AUDIO CONTEXT INITIALIZATION
+//
+// -----------------------------------------------------------------------------
 
+let timeout = setInterval(function(){
 
+  if (initialized) {
+
+    console.log("Audio context started!");
+    updatePlayers(userData);
+
+    for (let idx in sintes) {
+      if (!sintes[idx].initialized && sintes[idx] !== 0) {
+        sintes[idx].initialize(dac);
+      }
+    }
+    dac.toDestination();
+    CHORRO = true;
+    Tone.Transport.start();
+    clearInterval(timeout);
+
+  } else {
+    // console.log("Waiting for audio context...");
+  }
+
+}, 1000);
