@@ -12,7 +12,9 @@ c.set.on('change', function (v) {
 });
 
 c.tilt.on('change', function (v) {
-    if (socket.connected && CHORRO) socket.emit('tilt', v);
+    if (socket.connected && CHORRO) {
+        socket.emit('tilt', c.getTilt(v));
+    };
 });
 
 c.bpm.on('change', function (v) {
@@ -35,9 +37,17 @@ c.selectF.addEventListener('change', function() {
 c.selectS.on('change', function (v) {
     if (socket.connected && CHORRO) socket.emit('selectS', v);
 });
+c.position.on("release", function() {
+    clicked=false;
+    // console.log("Released", clicked);
+});
+c.position.on("click", function(v) {
+    clicked=true;
+    // console.log("Clicked",clicked);
+});
 
 c.position.on('change', function (v) {
-    if (socket.connected && CHORRO) socket.emit('position', v);
+    if (socket.connected && CHORRO) socket.emit('position', [clicked, v]);
 });
 
 //local

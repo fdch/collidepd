@@ -44,7 +44,8 @@ function updatePlayers(data) {
         // console.log(idx);
 
         if (sintes[idx] === 0) {
-            sintes[idx] = new Player();
+            // console.log("Fake synth initializer.");
+            sintes[idx] = new Player(idx);
         } else {
             console.log("Player " + idx + " is already ON.");
         }
