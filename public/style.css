@@ -85,4 +85,5 @@ input[type=submit] {
   border: 1px solid black;
   border-radius:2vmin;
   background:lightblue;
+  padding:2vmin;
 }

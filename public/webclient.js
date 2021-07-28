@@ -101,6 +101,7 @@ chatButton.onclick = function () {
 };
 let intStatus = 0;
 instButton.onclick = function () {
+  intStatus += 1;
   if(intStatus===0) {
     appMain.style.display='block';
     instDivSp.style.display='none';
@@ -109,15 +110,20 @@ instButton.onclick = function () {
     appMain.style.display='none';
     instDivSp.style.display='block';
     instDiv.style.display='none';
+    instButton.innerHTML = 'English';
   } else if (intStatus===2) {
     appMain.style.display='none';
     instDivSp.style.display='none';
     instDiv.style.display='block';
+    instButton.innerHTML = 'Hide';
   } else {
     intStatus=0;
+    appMain.style.display='block';
+    instDivSp.style.display='none';
+    instDiv.style.display='none';
+    instButton.innerHTML = 'Guide';
     return;
   }
-  intStatus += 1;
 };
 // -----------------------------------------------------------------------------
 //
