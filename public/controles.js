@@ -97,9 +97,9 @@ class Control {
       'size': [nxB, nxB]
     });
 
-    if (orient === "Browser") {
-      this.tilt.active = false;
-    }
+
+    this.tilt.active = false;
+
     //
     // // create a meter on the destination node
     // this.meter = new Nexus.Add.Meter(control).connect(dac);

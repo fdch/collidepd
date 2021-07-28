@@ -58,6 +58,8 @@ socket = io({
 // -----------------------------------------------------------------------------
 startButton.onclick = function () {
   if (!initialized) {
+
+    if ( orient !== "Browser" ) allowMotion = askForPermission();
     Tone.setContext(new Tone.Context({ latencyHint : "balanced" }))
     Tone.start();
     now = Tone.now();
@@ -117,5 +119,29 @@ chatButton.onclick = function () {
     chatContainer.style.display='block';
     chatButton.style.backgroundColor=colorFront;
     chatStatus = true;
+    chatButton.style.borderWidth = 1 + "px";
+    chatButton.style.fontWeight = "normal";
   }
 };
+let intStatus = 0;
+instButton.onclick = function () {
+  if(intStatus===0) {
+    appMain.style.display='block';
+    instDivSp.style.display='none';
+    instDiv.style.display='none';
+  } else if (intStatus===1) {
+    appMain.style.display='none';
+    instDivSp.style.display='block';
+    instDiv.style.display='none';
+  } else if (intStatus===2) {
+    appMain.style.display='none';
+    instDivSp.style.display='none';
+    instDiv.style.display='block';
+  } else {
+    intStatus=0;
+    return;
+  }
+  intStatus += 1;
+};
+
+

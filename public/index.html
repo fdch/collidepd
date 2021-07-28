@@ -47,9 +47,10 @@
 				<option	value="6">AP</option>
 				<option	value="7">PK</option>
 			</select>
+			<button id="instructions">Intructions</button>
 			<div id='status-bar'>
 				<span class="status"id="userid"></span>
-				<span class="status"id="players"></span>
+				<span id="players"></span>
 			</div>
 			<div id="chat-container">
 				<div id='bodybox'>
@@ -68,24 +69,101 @@
 		</div>
 	</header>
 	<main>
-		<!-- Acá metió mano fede -->
-		<div id="contsuperior">
-			<div id="controlsuperior"></div>
+		<div id="App-main">
+			<!-- Acá metió mano fede -->
+			<div id="contsuperior">
+				<div id="controlsuperior"></div>
+			</div>
+			<div id="contposition">
+				<div id="controlposition"></div>
+			</div>
+			<div id="continferior">
+				<div id="controlinferior"></div>
+			</div>
+			<!-- Hasta acá -->
 		</div>
-		<div id="contposition">
-			<div id="controlposition"></div>
+		<div id="Instructions" style="display:none" class="inst">
+			<h1 id="collidepd">CollidePD</h1>
+			<p><strong>CollidePd</strong> is a networked musical instrument that runs on any browser.</p>
+			<p>There is no log-in. It is anonymous. We don’t track you or store your data. You just connect with
+				people live and play music together.</p>
+			<p>The code is open source and it is hosted on <a
+					href="https://github.com/fdch/collidepd">Github</a>.</p>
+			<h2 id="instructions">Instructions</h2>
+			<ol class="incremental" type="1">
+				<li>Go to the website (see below).</li>
+				<li>Hit <code>Start</code> to start playing.</li>
+				<li>Hit <code>Stop</code> to stop playing.</li>
+				<li>Hit <code>Chat</code> to chat with others.</li>
+				<li>Hit <code>Instructions</code> to read the instructions.</li>
+			</ol>
+			<h3 id="things-to-consider">THINGS TO CONSIDER</h3>
+			<p>It will sound better on headphones.</p>
+			<p><strong>Some things might be LOUD.</strong></p>
+			<p><strong>Do not</strong> bring the volume slider all the way up.</p>
+			<p>You will have <em>more fun on a smartphone</em>, than on a computer with a mouse.</p>
+			<p>There is a <em>small delay</em> between what you play and what you listen.</p>
+			<p>If live-streamed, there will be a 20 second delay between what you listen on your device and on
+				the live stream.</p>
+			<h2 id="scan-the-following-qr-code-to-play-or-go-to-httpscollidepd.herokuapp.com">Scan the following
+				QR code to play or go to: <a href="https://collidepd.herokuapp.com"
+					class="uri">https://collidepd.herokuapp.com</a></h2>
+			<figure>
+				<img src="./public/collidepd.svg" alt="Go to https://collidepd.herokuapp.com" />
+				<figcaption aria-hidden="true">Go to https://collidepd.herokuapp.com</figcaption>
+			</figure>
+			<h3 id="privacy-policy">Privacy Policy</h3>
+			<p>We don’t track you.</p>
+			<p>We don’t store your data.</p>
+			<p>We want to play music together with you. That’s it.</p>
+			<h3 id="authors">Authors</h3>
+			<p>Fede Cámara Halac - <a href="https://fdch.github.io" class="uri">https://fdch.github.io</a></p>
+			<p>Federico Ragessi - <a href="https://github.com/ffrm" class="uri">https://github.com/ffrm</a></p>
+			<h3 id="credits">Credits</h3>
+			<p>QR code generated with <a href="https://github.com/nayuki/QR-Code-generator"
+					class="uri">https://github.com/nayuki/QR-Code-generator</a></p>
+			<p>Tone.js: <a href="https://tonejs.github.io" class="uri">https://tonejs.github.io</a></p>
+			<p>NexusUI.js: <a href="https://nexus-js.github.io/ui" class="uri">https://nexus-js.github.io/ui</a>
+			</p>
+			<p>socket.io:<a href="https://socket.io" class="uri">https://socket.io</a></p>
+			<p>Node.js: <a href="https://nodejs.org" class="uri">https://nodejs.org</a></p>
 		</div>
-		<div id="continferior">
-			<div id="controlinferior"></div>
+		<div id="Instrucciones" style="display:none" class="inst">
+			<h1 id="hola-bievenidos-a-esta-prueba-de-collidepd">Hola! Bievenidos a esta prueba de CollidePD</h1>
+			<p>CollidePD es un instrumento musical en red que funciona en cualquier navegador. No hay necesidad
+				de loguearse, es completamente anónimo y no almacena tus datos. Simplemente conectas con otros
+				usuarios para hacer música en vivo y en red.</p>
+			<h2 id="algunas-instrucciones">Algunas instrucciones</h2>
+			<p>Para conectarte click en START (y subí el volumen pero no tanto!) Para desconectarte click en
+				STOP</p>
+			<blockquote>
+				<p>Podes usar el Chat para comunicarte con los otros usuarios.</p>
+			</blockquote>
+			<h2 id="precauciones">PRECAUCIONES</h2>
+			<p>El instrumento está en desarrollo y por momentos el volumen puede ser intenso. De usar
+				auriculares es importante estár atento al volumen general (Slider Horizontal superior)</p>
+			<h2 id="funciones-generales">Funciones generales</h2>
+			<h3 id="panel-superior">PANEL SUPERIOR</h3>
+			<p>Start- inicia la conexión Stop - Detiene la conexión Chat - Canal para comunicarse Selector -
+				Para elegir el filtro base del instrumento Mapa de Conectados - Usuarios Conectados/Usuarios
+				Activos</p>
+			<p>Silder Horizontal - Control de Volumen General Selector - Para Elegir la fuente del sintetizador
+			</p>
+			<h3 id="panel-central">PANEL CENTRAL</h3>
+			<p>Position XY - Control central de nuestro instrumento musical</p>
+			<h3 id="panel-inferior">PANEL INFERIOR</h3>
+			<p>Boton 1 - Inicia un loop de pulsos Boton 2 - Randomiza algunos parametros del instrumento Dial 1
+				- Controla la velocidad de repetición del Loop Dial 2 - Wet Delay Dial 3 - Wet Reverb Boton TILT
+				- Si estás en un celular Android podes controlar el instrumento con el acelerómetro del celular.
+			</p>
+
 		</div>
-		<!-- Hasta acá -->
 	</main>
-	<footer>
-		<button id="instructions">Intructions</button>
-	</footer>
+	<footer></footer>
 </body>
 <!-- load our stuff -->
 <script type="text/javascript" src="display.js"></script>
+<script type="text/javascript" src="permissions.js"></script>
 <script type="text/javascript" src="controles.js"></script>
 <script type="text/javascript" src="sintes.js"></script>
 <script type="text/javascript" src="webclient.js"></script>

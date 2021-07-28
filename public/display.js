@@ -11,6 +11,10 @@ const messages = doc.getElementById('messages');
 const chatbox = doc.getElementById('chatbox');
 const chatButton = doc.getElementById('show-chat');
 const chat = doc.getElementById('chat');
+const appMain = doc.getElementById("App-main");
+const instButton = doc.getElementById('instructions');
+const instDiv = doc.getElementById('Instructions');
+const instDivSp = doc.getElementById('Instrucciones');
 const chatContainer = doc.getElementById('chat-container');
 const userAgent = win.navigator.userAgent;
 const x = win.innerWidth || docElem.clientWidth || body.clientWidth;
@@ -21,6 +25,7 @@ Then, close this window and refresh the page.\n
 Happy playing.`;
 
 var orient = "Browser";
+var allowMotion = false;
 const pad = 2;
 let dw = x - pad * 2;
 // clip width to max out at 720 or min at 200
