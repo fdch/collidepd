@@ -74,11 +74,7 @@ class Player {
     }).connect(dac);
     // this.channelfx = new Tone.channel()connect(dac);
 
-    // The Player's EQUAL PANNER OBJ
-
-   
-
-    
+ 
     this.lfofilter = new Tone.LFO(10, Nexus.rf(300, 400), Nexus.rf(4500, 5000));
     this.lfofilter.connect(this.filter.frequency);
     this.lfofilter.start();
