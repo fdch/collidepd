@@ -11,6 +11,7 @@ var players;      // the array of connected players
 
 var socket;       // the socket
 var now;          // Tone.now
+// var dac;          // DAC channel
 var CHORRO = true;
 sintes.fill(0);
 
@@ -57,8 +58,12 @@ socket = io({
 // -----------------------------------------------------------------------------
 startButton.onclick = function () {
   if (!initialized) {
+    Tone.setContext(new Tone.Context({ latencyHint : "balanced" }))
     Tone.start();
     now = Tone.now();
+    // dac = new Tone.Channel({
+    //   volume:-Infinity
+    // }).toDestination();
     console.log("Context started");
     // cuando apreto start, debo inicializar los players
     // prender los sintes de todos

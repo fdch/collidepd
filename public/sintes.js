@@ -1,7 +1,10 @@
+// const { Tone } = require("tone/build/esm/core/Tone");
 
 // The Destination "DAC"
 const dac = new Tone.Channel({
-  volume:-Infinity
+  volume:-Infinity,
+  pan: 0,
+  channelCount: 2,
 }).toDestination();
 
 // The Player's main Synth:
@@ -17,7 +20,7 @@ class Player {
       portamento: 0,
       volume: -6,
       envelope: {
-        attack: 0.01,
+        attack: 0.1,
         attackCurve: "linear",
         decay: 0.7,
         decayCurve: "exponential",
@@ -54,36 +57,52 @@ class Player {
 
 
 
-    //Loop
-    this.loop = new Tone.Loop((time) => {
-      // this.pitch(this.freq);
-      this.synth.triggerAttackRelease(this.freq);
-    }, 1);
-
-    Tone.Transport.start();
+    
 
     // The Player's Main Channel effects
     this.filter = new Tone.Filter(200, "lowpass");
+    this.filter.set({channelCount:2})
+    this.filter.connect(dac)
     this.dist = new Tone.Distortion(0.8);
     this.fdelay = new Tone.FeedbackDelay({
       delayTime: 0.125,
-      feedback: 0.1
+      feedback: 0.1,
+      channelCount:2
     }).connect(dac);
-
-
-    this.verb = new Tone.Reverb().connect(dac);
+    this.verb = new Tone.Reverb({
+      channelCount:2
+    }).connect(dac);
     // this.channelfx = new Tone.channel()connect(dac);
 
     // The Player's EQUAL PANNER OBJ
 
-    this.lfo = new Tone.LFO(0.5, -1, 1).connect(dac.pan).start();
-    this.lfofilter = new Tone.LFO("4n", 400, 4000).start();
+   
+
+    
+    this.lfofilter = new Tone.LFO(10, Nexus.rf(300, 400), Nexus.rf(4500, 5000));
     this.lfofilter.connect(this.filter.frequency);
+    this.lfofilter.start();
+
+    this.autopanner = new Tone.AutoPanner(1)
+    // this.autopanner.connect(dac);
+    this.autopanner.start();
+
+    
+
     // The FX CHAIN --> connects player to dac
-    this.synth.chain(this.dist, this.filter,  dac);
+    this.synth.chain(this.dist, this.autopanner, this.filter);
     this.filter.fan(this.fdelay);
     this.filter.fan(this.verb);
     // console.log(Created synth:  + this.oscid);
+
+    //Loop
+    this.loop = new Tone.Loop((time) => {
+      // this.pitch(this.freq);
+      this.synth.triggerAttackRelease(this.freq, now + 0.01);
+    }, 1);
+
+    Tone.Transport.start();
+    
   }
   vol(f) {
     this.synth.volume.rampTo(f, 0.1);
@@ -91,12 +110,12 @@ class Player {
 
   pitch(f) {
     this.freq = f;
-    this.synth.envelope.set({
-      attack: Nexus.rf(0.01, 0.1),
-      decay: Nexus.rf(0.1, 0.3),
-      release: Nexus.rf(0.2, 0.8)
-    });
-    this.synth.triggerAttackRelease(f);
+    // this.synth.envelope.set({
+    //   attack: Nexus.rf(0.05, 0.1),
+    //   decay: Nexus.rf(0.1, 0.3),
+    //   release: Nexus.rf(0.05, 0.8)
+    // });
+    this.synth.triggerAttackRelease(f, now + 0.01);
   }
 
 
@@ -109,18 +128,19 @@ class Player {
   }
 
   lfopan(f) {
-    var pan = Nexus.scale(f, 60, 5000, 0.01, 0.5)
-    this.lfo.frequency.rampTo(pan, 1);
-  }
-
-  lfofilter(f) {
-    var filter = Nexus.scale(f, 60, 5000, 0.2, 10)
-    this.lfofilter.frequency.rampTo(filter, 1);
+    var pan = Nexus.scale(f, 60, 5000, 1, 5)
+    this.autopanner.frequency.rampTo(pan, 0.1);
+    console.log(pan);
   }
 
   filterf(f) {
-    this.lfofilter.frequency.rampTo(f, 0.1);
+    var filter = Nexus.scale(f, 60, 5000, 0.5, 50)
+    this.lfofilter.frequency.rampTo(filter, 1);
   }
+
+  // filterf(f) {
+  //   this.lfofilter.frequency.rampTo(f, 1);
+  // }
 s
   delaywet(f) {
     this.fdelay.wet.rampTo(f, 0.1);
