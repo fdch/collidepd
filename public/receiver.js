@@ -18,10 +18,10 @@ socket.on('tilt', (data) => {
     let y = data[1].y;
     let z = data[1].z;
     sintes[i].pitch(Nexus.scale(x, -1, 1, 60, 5500));
-    sintes[i].filterf(Nexus.scale(y, -1, 1, 0, 1));
-    sintes[i].loop.set({
-        interval: Nexus.scale(z, 0, 1, 0.001, 0.1)
-    });
+    sintes[i].filterf(Nexus.scale(y, -1, 1, 0., 1));
+    // sintes[i].loop.set({
+    //     interval: Nexus.scale(z, 0, 1, 0.001, 0.1)
+    // });
 });
 
 socket.on('delay', (data) => {

@@ -44,7 +44,7 @@ function updatePlayers(data) {
         // console.log(idx);
 
         if (sintes[idx] === 0) {
-            sintes[idx] = new Player(data[i]);
+            sintes[idx] = new Player();
         } else {
             console.log("Player " + idx + " is already ON.");
         }
