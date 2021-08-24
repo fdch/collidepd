@@ -1,0 +1,40 @@
+/* Toggle.css style for Toggle.js */
+.fdToggleOn {
+  padding:2vmin;
+  border:2px solid black;
+  border-radius:2vmin;
+  background:chartreuse;
+  color:crimson;
+  font-weight:bold;
+}
+
+.fdToggleOff {
+  padding:2vmin;
+  cursor:pointer;
+  border:2px solid black;
+  border-radius:2vmin;
+  color:chartreuse;
+  background:crimson;
+  font-weight:bold;
+}
+
+
+.fdToggleOn:hover {
+  cursor:pointer;
+  padding:2vmin;
+  border:2px solid black;
+  border-radius:2vmin;
+  color:chartreuse;
+  background:crimson;
+  font-weight:bold;
+}
+
+.fdToggleOff:hover {
+  cursor:pointer;
+  padding:2vmin;
+  border:2px solid black;
+  border-radius:2vmin;
+  background:chartreuse;
+  color:crimson;
+  font-weight:bold;
+}

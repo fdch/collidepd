@@ -40,10 +40,19 @@ chatHist.fill({head:1002,value:""});
 // SERVE THE HOMEPAGE
 //
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+app.use(express.static(path.join(__dirname, 'client/build')));
+
+app.get("/api", (req, res) => {
+    res.json({ message: "Hello from server!" });
 });
 
+app.get('/client', (req, res) => {;
+    res.sendFile(__dirname + '/client/build/index.html');
+});
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
 // =============================================================================
 // -----------------------------------------------------------------------------
 //  OPEN SOCKETS: BEGIN LISTENING FOR CLIENT CONNECTIONS
