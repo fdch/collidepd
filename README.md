@@ -6,6 +6,13 @@ There is no log-in. It is anonymous. We don't track you or store your data. You 
 
 The code is open source and it is hosted on [Github](https://github.com/fdch/collidepd).
 
+## Presentations
+
+2021 
+- International Computer Music Conference (ICMC)
+- Australasian Computer Music Conference (ACMC)
+
+
 ## Instructions
 
 1. Go to the website (see below).
