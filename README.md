@@ -4,6 +4,8 @@
 
 There is no log-in. It is anonymous. We don't track you or store your data. You just connect with people live and play music together.
 
+![collidepd.png](collidepd.png "CollidePD Gui")
+
 The code is open source and it is hosted on [Github](https://github.com/fdch/collidepd).
 
 ## Instructions
